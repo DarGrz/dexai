@@ -1,0 +1,179 @@
+import { createClient } from '@/lib/supabase/server'
+import { notFound } from 'next/navigation'
+import Link from 'next/link'
+import { CopyButton } from './components/CopyButton'
+
+export default async function ProjectPage({
+  params,
+}: {
+  params: Promise<{ projectId: string }>
+}) {
+  const { projectId } = await params
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    notFound()
+  }
+
+  // Fetch project
+  const { data: project } = await supabase
+    .from('projects')
+    .select('*')
+    .eq('project_id', projectId)
+    .eq('user_id', user.id)
+    .single()
+
+  if (!project) {
+    notFound()
+  }
+
+  // Fetch schemas for this project
+  const { data: schemas } = await supabase
+    .from('schemas')
+    .select('*')
+    .eq('project_id', projectId)
+    .order('created_at', { ascending: false })
+
+  // Get base URL for snippet (use environment variable or default to current host)
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const snippetCode = `<script src="${baseUrl}/embed.js" data-project="${projectId}" data-api="${baseUrl}/api/schema" defer></script>`
+
+  return (
+    <div>
+      {/* Header */}
+      <div className="mb-8">
+        <Link
+          href="/dashboard"
+          className="text-sm text-gray-600 hover:text-gray-900 mb-2 inline-block"
+        >
+          ← Powrót do projektów
+        </Link>
+        <h1 className="text-3xl font-bold text-gray-900">{project.domain}</h1>
+        <p className="text-sm text-gray-500 mt-1">ID projektu: {project.project_id}</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Column */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Snippet */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Kod do wklejenia na stronie
+            </h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Skopiuj poniższy kod i wklej go w sekcji <code className="bg-gray-100 px-2 py-1 rounded">&lt;head&gt;</code> swojej strony
+            </p>
+            <div className="bg-gray-900 text-gray-100 p-4 rounded-md font-mono text-sm overflow-x-auto">
+              <code>{snippetCode}</code>
+            </div>
+            <CopyButton text={snippetCode} />
+          </div>
+
+          {/* Schemas List */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Dane strukturalne
+              </h2>
+              <Link
+                href={`/dashboard/projects/${projectId}/schemas`}
+                className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+              >
+                Zarządzaj →
+              </Link>
+            </div>
+
+            {!schemas || schemas.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500 mb-4">
+                  Nie masz jeszcze żadnych danych strukturalnych
+                </p>
+                <Link
+                  href={`/dashboard/projects/${projectId}/schemas/setup`}
+                  className="inline-block px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm font-medium"
+                >
+                  Rozpocznij konfigurację
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {schemas.map((schema) => (
+                  <div
+                    key={schema.id}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-md"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-3 h-3 rounded-full ${schema.enabled ? 'bg-green-500' : 'bg-gray-300'}`} />
+                      <span className="font-medium text-gray-900">{schema.type}</span>
+                      {schema.url_pattern && schema.url_pattern !== '*' && (
+                        <span className="text-xs text-gray-500">({schema.url_pattern})</span>
+                      )}
+                    </div>
+                    <span className="text-xs text-gray-400">
+                      {schema.enabled ? 'Aktywne' : 'Wyłączone'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Sidebar */}
+        <div className="space-y-6">
+          {/* Quick Actions */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 className="text-sm font-semibold text-gray-900 mb-4">Szybkie akcje</h3>
+            <div className="space-y-2">
+              <Link
+                href={`/dashboard/projects/${projectId}/schemas/setup`}
+                className="block w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm text-center font-medium"
+              >
+                Konfiguruj schema
+              </Link>
+              <button
+                className="block w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm font-medium"
+              >
+                Testuj w Google
+              </button>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 className="text-sm font-semibold text-gray-900 mb-4">Statystyki</h3>
+            <div className="space-y-3">
+              <div>
+                <p className="text-xs text-gray-500">Aktywne schematy</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {schemas?.filter(s => s.enabled).length || 0}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Łącznie schematów</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {schemas?.length || 0}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Data utworzenia</p>
+                <p className="text-sm font-medium text-gray-900">
+                  {new Date(project.created_at).toLocaleDateString('pl-PL')}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Help */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h3 className="text-sm font-semibold text-blue-900 mb-2">💡 Wskazówka</h3>
+            <p className="text-xs text-blue-800">
+              Po wklejeniu kodu na stronie, dane będą automatycznie aktualizowane bez potrzeby zmiany kodu.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
