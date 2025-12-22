@@ -44,14 +44,16 @@ export default function CreateSchemaPage() {
     ],
   })
 
-  // Review
-  const [reviewData, setReviewData] = useState({
-    itemName: '',
-    authorName: '',
-    ratingValue: '5',
-    reviewBody: '',
-    datePublished: new Date().toISOString().split('T')[0],
-  })
+  // Review - multiple reviews
+  const [reviewsData, setReviewsData] = useState([
+    {
+      itemName: '',
+      authorName: '',
+      ratingValue: '5',
+      reviewBody: '',
+      datePublished: new Date().toISOString().split('T')[0],
+    }
+  ])
 
   // Article
   const [articleData, setArticleData] = useState({
@@ -206,27 +208,32 @@ export default function CreateSchemaPage() {
       }
 
       if (selectedSchemas.has('Review')) {
-        schemas.push({
-          type: 'Review',
-          json: {
-            '@context': 'https://schema.org',
-            '@type': 'Review',
-            author: {
-              '@type': 'Person',
-              name: reviewData.authorName,
-            },
-            reviewRating: {
-              '@type': 'Rating',
-              ratingValue: reviewData.ratingValue,
-              bestRating: '5',
-              worstRating: '1',
-            },
-            reviewBody: reviewData.reviewBody,
-            datePublished: reviewData.datePublished,
-            itemReviewed: {
-              '@type': 'Organization',
-              name: reviewData.itemName,
-            }
+        // Create separate schema for each review
+        reviewsData.forEach(review => {
+          if (review.authorName && review.itemName) {
+            schemas.push({
+              type: 'Review',
+              json: {
+                '@context': 'https://schema.org',
+                '@type': 'Review',
+                author: {
+                  '@type': 'Person',
+                  name: review.authorName,
+                },
+                reviewRating: {
+                  '@type': 'Rating',
+                  ratingValue: review.ratingValue,
+                  bestRating: '5',
+                  worstRating: '1',
+                },
+                reviewBody: review.reviewBody,
+                datePublished: review.datePublished,
+                itemReviewed: {
+                  '@type': 'Organization',
+                  name: review.itemName,
+                }
+              }
+            })
           }
         })
       }
@@ -496,21 +503,100 @@ export default function CreateSchemaPage() {
         {/* Review Form */}
         {selectedSchemas.has('Review') && (
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Review - Pojedyncza opinia</h2>
-            <div className="space-y-4">
-              <input type="text" required placeholder="Nazwa firmy/produktu *" value={reviewData.itemName} onChange={(e) => setReviewData({ ...reviewData, itemName: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
-              <input type="text" required placeholder="Imię autora *" value={reviewData.authorName} onChange={(e) => setReviewData({ ...reviewData, authorName: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
-              <div className="grid grid-cols-2 gap-4">
-                <select value={reviewData.ratingValue} onChange={(e) => setReviewData({ ...reviewData, ratingValue: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md">
-                  <option value="5">5 ⭐⭐⭐⭐⭐</option>
-                  <option value="4">4 ⭐⭐⭐⭐</option>
-                  <option value="3">3 ⭐⭐⭐</option>
-                  <option value="2">2 ⭐⭐</option>
-                  <option value="1">1 ⭐</option>
-                </select>
-                <input type="date" value={reviewData.datePublished} onChange={(e) => setReviewData({ ...reviewData, datePublished: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
-              </div>
-              <textarea required placeholder="Treść opinii *" value={reviewData.reviewBody} onChange={(e) => setReviewData({ ...reviewData, reviewBody: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" rows={4} />
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">Review - Opinie klientów</h2>
+              <button
+                type="button"
+                onClick={() => setReviewsData([...reviewsData, {
+                  itemName: '',
+                  authorName: '',
+                  ratingValue: '5',
+                  reviewBody: '',
+                  datePublished: new Date().toISOString().split('T')[0],
+                }])}
+                className="flex items-center gap-2 px-3 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+              >
+                <Plus className="w-4 h-4" />
+                Dodaj opinię
+              </button>
+            </div>
+            <div className="space-y-6">
+              {reviewsData.map((review, idx) => (
+                <div key={idx} className="p-4 border border-gray-200 rounded-lg space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-medium text-gray-900">Opinia #{idx + 1}</h3>
+                    {reviewsData.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => setReviewsData(reviewsData.filter((_, i) => i !== idx))}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Nazwa firmy/produktu *"
+                    value={review.itemName}
+                    onChange={(e) => {
+                      const newReviews = [...reviewsData]
+                      newReviews[idx].itemName = e.target.value
+                      setReviewsData(newReviews)
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Imię autora *"
+                    value={review.authorName}
+                    onChange={(e) => {
+                      const newReviews = [...reviewsData]
+                      newReviews[idx].authorName = e.target.value
+                      setReviewsData(newReviews)
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  />
+                  <div className="grid grid-cols-2 gap-4">
+                    <select
+                      value={review.ratingValue}
+                      onChange={(e) => {
+                        const newReviews = [...reviewsData]
+                        newReviews[idx].ratingValue = e.target.value
+                        setReviewsData(newReviews)
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    >
+                      <option value="5">5 ⭐⭐⭐⭐⭐</option>
+                      <option value="4">4 ⭐⭐⭐⭐</option>
+                      <option value="3">3 ⭐⭐⭐</option>
+                      <option value="2">2 ⭐⭐</option>
+                      <option value="1">1 ⭐</option>
+                    </select>
+                    <input
+                      type="date"
+                      value={review.datePublished}
+                      onChange={(e) => {
+                        const newReviews = [...reviewsData]
+                        newReviews[idx].datePublished = e.target.value
+                        setReviewsData(newReviews)
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    />
+                  </div>
+                  <textarea
+                    placeholder="Treść opinii *"
+                    value={review.reviewBody}
+                    onChange={(e) => {
+                      const newReviews = [...reviewsData]
+                      newReviews[idx].reviewBody = e.target.value
+                      setReviewsData(newReviews)
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    rows={4}
+                  />
+                </div>
+              ))}
             </div>
           </div>
         )}
