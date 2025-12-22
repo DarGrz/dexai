@@ -17,8 +17,8 @@
   // Get API URL (with fallback to production)
   var apiUrl = script.getAttribute('data-api') || 'https://dexai.pl/api/schema';
   
-  // Fetch schemas
-  fetch(apiUrl + '?projectId=' + projectId)
+  // Fetch schemas with cache buster
+  fetch(apiUrl + '?projectId=' + projectId + '&_=' + Date.now())
     .then(function(response) {
       if (!response.ok) {
         throw new Error('HTTP error! status: ' + response.status);
