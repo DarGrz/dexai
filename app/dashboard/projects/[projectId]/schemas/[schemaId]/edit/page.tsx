@@ -39,6 +39,15 @@ export default async function EditSchemaPage({
     notFound()
   }
 
+  // Fetch user profile to get max_edits_per_month limit
+  const { data: userProfile } = await supabase
+    .from('user_profiles')
+    .select('max_edits_per_month')
+    .eq('id', user.id)
+    .single()
+
+  const maxEditsPerMonth = userProfile?.max_edits_per_month || 5
+
   // Check edit limit
   const now = new Date()
   const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
@@ -50,7 +59,7 @@ export default async function EditSchemaPage({
     .gte('created_at', firstDayOfMonth.toISOString())
 
   const editCount = edits?.length || 0
-  const remainingEdits = Math.max(0, 5 - editCount)
+  const remainingEdits = Math.max(0, maxEditsPerMonth - editCount)
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -58,6 +67,7 @@ export default async function EditSchemaPage({
         schema={schema}
         projectId={projectId}
         remainingEdits={remainingEdits}
+        maxEditsPerMonth={maxEditsPerMonth}
       />
     </div>
   )

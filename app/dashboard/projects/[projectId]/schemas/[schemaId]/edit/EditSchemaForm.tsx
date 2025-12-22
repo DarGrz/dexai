@@ -97,11 +97,13 @@ type FormData = LocalBusinessFormData | AggregateRatingFormData | ReviewFormData
 export function EditSchemaForm({ 
   schema, 
   projectId,
-  remainingEdits
+  remainingEdits,
+  maxEditsPerMonth
 }: { 
   schema: SchemaData
   projectId: string
   remainingEdits: number
+  maxEditsPerMonth: number
 }) {
   const router = useRouter()
   const supabase = createClient()
@@ -213,7 +215,7 @@ export function EditSchemaForm({
     e.preventDefault()
     
     if (remainingEdits === 0) {
-      setError('Osiągnięto limit edycji w tym miesiącu (5/5)')
+      setError(`Osiągnięto limit edycji w tym miesiącu (${maxEditsPerMonth}/${maxEditsPerMonth})`)
       return
     }
 

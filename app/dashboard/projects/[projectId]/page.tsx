@@ -76,57 +76,66 @@ echo $schema_html;
               Kod do wklejenia na stronie
             </h2>
             
-            {/* SEO Snippet (for PHP/Server-side) */}
-            <div className="mb-6">
-              <h3 className="text-sm font-medium text-gray-700 mb-2">
-                ✅ Dla SEO (zalecane - Google widzi schematy)
-              </h3>
-              <p className="text-xs text-gray-600 mb-3">
-                Dla stron PHP - wklej w <code className="bg-gray-100 px-1 rounded">&lt;head&gt;</code>
-              </p>
-              <div className="bg-gray-900 text-gray-100 p-4 rounded-md font-mono text-xs overflow-x-auto mb-2">
-                <code>{seoSnippet}</code>
-              </div>
-              <CopyButton text={seoSnippet} />
-            </div>
-
-            {/* Direct URL */}
-            <div className="mb-6">
-              <h3 className="text-sm font-medium text-gray-700 mb-2">
-                📄 Bezpośredni URL do schematów HTML
-              </h3>
-              <p className="text-xs text-gray-600 mb-3">
-                Otwórz ten URL i skopiuj zawartość bezpośrednio do swojego HTML
-              </p>
-              <div className="bg-gray-900 text-gray-100 p-4 rounded-md font-mono text-xs overflow-x-auto mb-2 break-all">
-                <code>{baseUrl}/api/schema-html?projectId={projectId}</code>
-              </div>
-              <div className="flex gap-2">
-                <CopyButton text={`${baseUrl}/api/schema-html?projectId=${projectId}`} />
-                <a
-                  href={`${baseUrl}/api/schema-html?projectId=${projectId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded hover:bg-indigo-700"
-                >
-                  Otwórz URL
-                </a>
-              </div>
-            </div>
-
             {/* JavaScript Snippet */}
-            <div>
+            <div className="mb-6">
               <h3 className="text-sm font-medium text-gray-700 mb-2">
-                ⚡ JavaScript (dynamiczne ładowanie)
+                ⚡ JavaScript (zalecane)
               </h3>
               <p className="text-xs text-gray-600 mb-3">
-                Google może nie wykryć w testach, ale działa na live stronie
+                Wklej w sekcji <code className="bg-gray-100 px-1 rounded">&lt;head&gt;</code> lub przed <code className="bg-gray-100 px-1 rounded">&lt;/body&gt;</code>
               </p>
               <div className="bg-gray-900 text-gray-100 p-4 rounded-md font-mono text-xs overflow-x-auto mb-2">
                 <code>{jsSnippet}</code>
               </div>
               <CopyButton text={jsSnippet} />
             </div>
+
+            {/* Advanced Options - Collapsed */}
+            <details className="mt-4">
+              <summary className="text-xs text-gray-500 cursor-pointer hover:text-gray-700 flex items-center gap-1">
+                <span>⚙️</span>
+                <span>Opcjonalnie</span>
+              </summary>
+              <div className="mt-4 space-y-6 pl-4 border-l-2 border-gray-200">
+                {/* SEO Snippet (for PHP/Server-side) */}
+                <div>
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">
+                    Dla SEO (PHP/Server-side)
+                  </h3>
+                  <p className="text-xs text-gray-600 mb-3">
+                    Dla stron PHP - wklej w <code className="bg-gray-100 px-1 rounded">&lt;head&gt;</code>
+                  </p>
+                  <div className="bg-gray-900 text-gray-100 p-4 rounded-md font-mono text-xs overflow-x-auto mb-2">
+                    <code>{seoSnippet}</code>
+                  </div>
+                  <CopyButton text={seoSnippet} />
+                </div>
+
+                {/* Direct URL */}
+                <div>
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">
+                    Bezpośredni URL do schematów HTML
+                  </h3>
+                  <p className="text-xs text-gray-600 mb-3">
+                    Otwórz ten URL i skopiuj zawartość bezpośrednio do swojego HTML
+                  </p>
+                  <div className="bg-gray-900 text-gray-100 p-4 rounded-md font-mono text-xs overflow-x-auto mb-2 break-all">
+                    <code>{baseUrl}/api/schema-html?projectId={projectId}</code>
+                  </div>
+                  <div className="flex gap-2">
+                    <CopyButton text={`${baseUrl}/api/schema-html?projectId=${projectId}`} />
+                    <a
+                      href={`${baseUrl}/api/schema-html?projectId=${projectId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded hover:bg-indigo-700"
+                    >
+                      Otwórz URL
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </details>
           </div>
 
           {/* Schemas List */}

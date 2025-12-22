@@ -129,15 +129,8 @@ export default async function DashboardPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Twoje projekty</h1>
-        <div className="flex gap-3">
-          <Link
-            href="/dashboard/settings"
-            className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 font-medium"
-          >
-            ⚙️ Ustawienia
-          </Link>
+      <div className="flex justify-end items-center mb-6">
+        <div>
           {canAddProject ? (
             <Link
               href="/dashboard/projects/new"

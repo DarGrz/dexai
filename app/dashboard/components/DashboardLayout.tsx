@@ -50,7 +50,9 @@ export function DashboardLayout({
       >
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-6 border-b border-gray-800">
-          <h1 className="text-xl font-bold text-white">DexAi</h1>
+          <Link href="/" className="text-xl font-bold text-white hover:text-gray-200 transition-colors">
+            DexAi
+          </Link>
           <button
             onClick={closeMobileMenu}
             className="lg:hidden text-gray-400 hover:text-white"
@@ -119,7 +121,9 @@ export function DashboardLayout({
             <Menu className="w-6 h-6" />
           </button>
           <div className="flex-1">
-            <h2 className="text-lg font-semibold text-gray-900">Moje projekty</h2>
+            <h2 className="text-lg font-semibold text-gray-900">
+              {pathname === '/dashboard/settings' ? 'Moje ustawienia' : 'Moje projekty'}
+            </h2>
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-600">

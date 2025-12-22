@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
   email TEXT NOT NULL,
   is_promo BOOLEAN DEFAULT true,
   domain_count INTEGER DEFAULT 0,
+  max_domains INTEGER DEFAULT 1,
+  max_edits_per_month INTEGER DEFAULT 5,
   subscription_status TEXT DEFAULT 'inactive',
   stripe_customer_id TEXT,
   stripe_subscription_id TEXT,

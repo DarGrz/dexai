@@ -46,14 +46,23 @@ export default function NewProjectPage() {
         return
       }
 
-      // Check project limit (max 1 domain)
+      // Fetch user profile to get max_domains limit
+      const { data: userProfile } = await supabase
+        .from('user_profiles')
+        .select('max_domains')
+        .eq('id', user.id)
+        .single()
+
+      const maxDomains = userProfile?.max_domains || 1
+
+      // Check project limit
       const { data: existingProjects } = await supabase
         .from('projects')
         .select('*')
         .eq('user_id', user.id)
 
-      if (existingProjects && existingProjects.length >= 1) {
-        setError('Osiągnięto limit 1 domeny w planie. Usuń istniejący projekt aby dodać nowy.')
+      if (existingProjects && existingProjects.length >= maxDomains) {
+        setError(`Osiągnięto limit ${maxDomains} ${maxDomains === 1 ? 'domeny' : 'domen'} w planie. Usuń istniejący projekt aby dodać nowy.`)
         setLoading(false)
         return
       }

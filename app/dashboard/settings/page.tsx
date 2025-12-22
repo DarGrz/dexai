@@ -42,17 +42,6 @@ export default async function SettingsPage() {
 
   return (
     <div className="max-w-4xl mx-auto py-8">
-      <div className="mb-6">
-        <Link 
-          href="/dashboard"
-          className="text-indigo-600 hover:text-indigo-800 flex items-center gap-2"
-        >
-          ← Powrót do dashboardu
-        </Link>
-      </div>
-
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Ustawienia konta</h1>
-
       {/* Account Info */}
       <div className="bg-white rounded-lg shadow border border-gray-200 p-6 mb-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Informacje o koncie</h2>
@@ -107,20 +96,12 @@ export default async function SettingsPage() {
         <div className="bg-white rounded-lg shadow border border-gray-200 p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Zarządzanie subskrypcją</h2>
           
-          <div className="mb-6">
+          <div>
             <h3 className="font-medium text-gray-900 mb-2">Dane płatności i faktury</h3>
             <p className="text-gray-600 mb-3">
-              Możesz zaktualizować swoją kartę kredytową, adres rozliczeniowy oraz zarządzać fakturami w portalu Stripe.
+              Możesz zaktualizować swoją kartę kredytową, adres rozliczeniowy, zmienić na dane firmowe (NIP) oraz zarządzać fakturami i subskrypcją w portalu Stripe.
             </p>
             <ManageBillingButton />
-          </div>
-
-          <div className="border-t border-gray-200 pt-6">
-            <h3 className="font-medium text-gray-900 mb-2">Anulowanie subskrypcji</h3>
-            <p className="text-gray-600 mb-4">
-              Możesz anulować swoją subskrypcję w każdej chwili. Plan będzie aktywny do końca bieżącego okresu rozliczeniowego.
-            </p>
-            <CancelSubscriptionButton />
           </div>
         </div>
       )}
