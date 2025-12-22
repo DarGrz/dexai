@@ -23,6 +23,7 @@ type LocalBusinessFormData = {
   phone: string
   email: string
   priceRange: string
+  areaServed: string
   openingHours: Array<{
     day: string
     opens: string
@@ -65,6 +66,14 @@ type WebPageFormData = {
   url: string
 }
 
+type ServiceFormData = {
+  name: string
+  description: string
+  serviceType: string
+  providerName: string
+  areaServed: string
+}
+
 type ProductFormData = {
   name: string
   description: string
@@ -80,7 +89,7 @@ type FAQFormData = {
   }>
 }
 
-type FormData = LocalBusinessFormData | AggregateRatingFormData | ReviewFormData | ArticleFormData | BreadcrumbFormData | WebPageFormData | ProductFormData | FAQFormData
+type FormData = LocalBusinessFormData | AggregateRatingFormData | ReviewFormData | ArticleFormData | BreadcrumbFormData | WebPageFormData | ServiceFormData | ProductFormData | FAQFormData
 
 export function EditSchemaForm({ 
   schema, 
@@ -126,6 +135,7 @@ export function EditSchemaForm({
         phone: jsonData.telephone || '',
         email: jsonData.email || '',
         priceRange: jsonData.priceRange || '',
+        areaServed: Array.isArray(jsonData.areaServed) ? jsonData.areaServed.join(', ') : (jsonData.areaServed || ''),
         openingHours,
       }
     } else if (schema.type === 'AggregateRating') {
@@ -162,6 +172,14 @@ export function EditSchemaForm({
         description: jsonData.description || '',
         url: jsonData.url || '',
       }
+    } else if (schema.type === 'Service') {
+      return {
+        name: jsonData.name || '',
+        description: jsonData.description || '',
+        serviceType: jsonData.serviceType || '',
+        providerName: jsonData.provider?.name || '',
+        areaServed: jsonData.areaServed || '',
+      }
     } else if (schema.type === 'Product') {
       return {
         name: jsonData.name || '',
@@ -179,7 +197,7 @@ export function EditSchemaForm({
       }
     }
     
-    return { name: '', description: '', street: '', city: '', postalCode: '', phone: '', email: '', priceRange: '', openingHours: [] }
+    return { name: '', description: '', street: '', city: '', postalCode: '', phone: '', email: '', priceRange: '', areaServed: '', openingHours: [] }
   })
 
   const [loading, setLoading] = useState(false)
@@ -226,6 +244,7 @@ export function EditSchemaForm({
           telephone: data.phone,
           email: data.email,
           priceRange: data.priceRange,
+          areaServed: data.areaServed ? data.areaServed.split(',').map(s => s.trim()).filter(s => s) : undefined,
           openingHoursSpecification: openingHoursSpec,
         }
       } else if (schema.type === 'AggregateRating') {
@@ -300,6 +319,20 @@ export function EditSchemaForm({
           description: data.description,
           url: data.url,
           inLanguage: 'pl-PL',
+        }
+      } else if (schema.type === 'Service') {
+        const data = formData as ServiceFormData
+        updatedJsonData = {
+          '@context': 'https://schema.org',
+          '@type': 'Service',
+          name: data.name,
+          description: data.description,
+          serviceType: data.serviceType,
+          provider: {
+            '@type': 'Organization',
+            name: data.providerName,
+          },
+          areaServed: data.areaServed,
         }
       } else if (schema.type === 'Product') {
         const data = formData as ProductFormData
@@ -481,6 +514,15 @@ export function EditSchemaForm({
                     <option value="$$$">$$$ - Wyższe ceny</option>
                     <option value="$$$$">$$$$ - Premium</option>
                   </select>
+                </div>
+                <div>
+                  <textarea
+                    value={(formData as LocalBusinessFormData).areaServed}
+                    onChange={(e) => setFormData({ ...formData, areaServed: e.target.value } as FormData)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                    placeholder="Obszar świadczenia usług - miasta/regiony oddzielone przecinkami (np. Warszawa, Praga, Mokotów)"
+                    rows={2}
+                  />
                 </div>
               </div>
 
@@ -757,6 +799,51 @@ export function EditSchemaForm({
                   placeholder="URL strony"
                   value={(formData as WebPageFormData).url}
                   onChange={(e) => setFormData({ ...formData, url: e.target.value } as FormData)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Service Form */}
+          {schema.type === 'Service' && (
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Service - Usługa</h2>
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  required
+                  placeholder="Nazwa usługi *"
+                  value={(formData as ServiceFormData).name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value } as FormData)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                />
+                <textarea
+                  placeholder="Opis usługi"
+                  value={(formData as ServiceFormData).description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value } as FormData)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                  rows={3}
+                />
+                <input
+                  type="text"
+                  placeholder="Typ usługi (np. Naprawa komputerów)"
+                  value={(formData as ServiceFormData).serviceType}
+                  onChange={(e) => setFormData({ ...formData, serviceType: e.target.value } as FormData)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                />
+                <input
+                  type="text"
+                  placeholder="Nazwa dostawcy"
+                  value={(formData as ServiceFormData).providerName}
+                  onChange={(e) => setFormData({ ...formData, providerName: e.target.value } as FormData)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                />
+                <input
+                  type="text"
+                  placeholder="Obszar świadczenia (np. Warszawa)"
+                  value={(formData as ServiceFormData).areaServed}
+                  onChange={(e) => setFormData({ ...formData, areaServed: e.target.value } as FormData)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md"
                 />
               </div>

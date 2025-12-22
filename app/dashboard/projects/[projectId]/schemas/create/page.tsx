@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react'
 
-type SchemaType = 'LocalBusiness' | 'AggregateRating' | 'Product' | 'FAQPage' | 'Review' | 'Article' | 'BreadcrumbList' | 'WebPage'
+type SchemaType = 'LocalBusiness' | 'AggregateRating' | 'Product' | 'FAQPage' | 'Review' | 'Article' | 'BreadcrumbList' | 'WebPage' | 'Service'
 
 export default function CreateSchemaPage() {
   const params = useParams()
@@ -29,6 +29,7 @@ export default function CreateSchemaPage() {
     telephone: '',
     email: '',
     priceRange: '',
+    areaServed: '',
     openingHours: [
       { day: 'Monday', opens: '09:00', closes: '17:00', closed: false },
       { day: 'Tuesday', opens: '09:00', closes: '17:00', closed: false },
@@ -77,6 +78,15 @@ export default function CreateSchemaPage() {
     name: '',
     description: '',
     url: '',
+  })
+
+  // Service
+  const [serviceData, setServiceData] = useState({
+    name: '',
+    description: '',
+    providerName: '',
+    serviceType: '',
+    areaServed: '',
   })
 
   // Product
@@ -185,6 +195,7 @@ export default function CreateSchemaPage() {
             telephone: localBusinessData.telephone,
             email: localBusinessData.email,
             priceRange: localBusinessData.priceRange,
+            areaServed: localBusinessData.areaServed ? localBusinessData.areaServed.split(',').map(s => s.trim()).filter(s => s) : undefined,
             openingHoursSpecification: openingHoursSpec,
           }
         })
@@ -283,6 +294,24 @@ export default function CreateSchemaPage() {
         })
       }
 
+      if (selectedSchemas.has('Service')) {
+        schemas.push({
+          type: 'Service',
+          json: {
+            '@context': 'https://schema.org',
+            '@type': 'Service',
+            name: serviceData.name,
+            description: serviceData.description,
+            serviceType: serviceData.serviceType,
+            provider: {
+              '@type': 'Organization',
+              name: serviceData.providerName,
+            },
+            areaServed: serviceData.areaServed,
+          }
+        })
+      }
+
       if (selectedSchemas.has('Product')) {
         schemas.push({
           type: 'Product',
@@ -359,7 +388,7 @@ export default function CreateSchemaPage() {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Wybierz typy schematów</h2>
           <div className="space-y-3">
-            {(['LocalBusiness', 'AggregateRating', 'Review', 'Product', 'FAQPage', 'Article', 'BreadcrumbList', 'WebPage'] as SchemaType[]).map(type => (
+            {(['LocalBusiness', 'AggregateRating', 'Review', 'Product', 'Service', 'FAQPage', 'Article', 'BreadcrumbList', 'WebPage'] as SchemaType[]).map(type => (
               <label key={type} className="flex items-center gap-3 p-3 border-2 border-gray-200 rounded-lg hover:border-indigo-300 cursor-pointer transition-colors">
                 <input
                   type="checkbox"
@@ -391,6 +420,8 @@ export default function CreateSchemaPage() {
                 <input type="tel" placeholder="Telefon" value={localBusinessData.telephone} onChange={(e) => setLocalBusinessData({ ...localBusinessData, telephone: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
                 <input type="email" placeholder="Email" value={localBusinessData.email} onChange={(e) => setLocalBusinessData({ ...localBusinessData, email: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
               </div>
+              <input type="text" placeholder="Zakres cenowy (np. $$)" value={localBusinessData.priceRange} onChange={(e) => setLocalBusinessData({ ...localBusinessData, priceRange: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              <textarea placeholder="Obszar świadczenia usług - miasta/regiony oddzielone przecinkami (np. Warszawa, Praga, Mokotów)" value={localBusinessData.areaServed} onChange={(e) => setLocalBusinessData({ ...localBusinessData, areaServed: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" rows={2} />
               
               <div className="mt-4 pt-4 border-t border-gray-200">
                 <h3 className="font-medium text-gray-900 mb-3">Godziny otwarcia</h3>
@@ -525,6 +556,20 @@ export default function CreateSchemaPage() {
               <input type="text" required placeholder="Nazwa strony *" value={webPageData.name} onChange={(e) => setWebPageData({ ...webPageData, name: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
               <textarea placeholder="Opis strony" value={webPageData.description} onChange={(e) => setWebPageData({ ...webPageData, description: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" rows={2} />
               <input type="url" placeholder="URL strony" value={webPageData.url} onChange={(e) => setWebPageData({ ...webPageData, url: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+            </div>
+          </div>
+        )}
+
+        {/* Service Form */}
+        {selectedSchemas.has('Service') && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Service - Usługa</h2>
+            <div className="space-y-4">
+              <input type="text" required placeholder="Nazwa usługi *" value={serviceData.name} onChange={(e) => setServiceData({ ...serviceData, name: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              <textarea placeholder="Opis usługi" value={serviceData.description} onChange={(e) => setServiceData({ ...serviceData, description: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" rows={3} />
+              <input type="text" placeholder="Typ usługi (np. Naprawa komputerów)" value={serviceData.serviceType} onChange={(e) => setServiceData({ ...serviceData, serviceType: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              <input type="text" placeholder="Nazwa dostawcy" value={serviceData.providerName} onChange={(e) => setServiceData({ ...serviceData, providerName: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              <input type="text" placeholder="Obszar świadczenia (np. Warszawa)" value={serviceData.areaServed} onChange={(e) => setServiceData({ ...serviceData, areaServed: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
             </div>
           </div>
         )}
