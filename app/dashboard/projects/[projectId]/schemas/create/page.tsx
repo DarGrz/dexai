@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react'
 
-type SchemaType = 'LocalBusiness' | 'Product' | 'FAQPage' | 'Review' | 'Article' | 'BreadcrumbList' | 'WebPage' | 'Service'
+type SchemaType = 'LocalBusiness' | 'Product' | 'FAQPage' | 'Review' | 'Article' | 'BreadcrumbList' | 'WebPage' | 'Service' | 'OpenGraph'
 
 export default function CreateSchemaPage() {
   const params = useParams()
@@ -101,6 +101,22 @@ export default function CreateSchemaPage() {
     questions: [
       { question: '', answer: '' }
     ],
+  })
+
+  // OpenGraph
+  const [openGraphData, setOpenGraphData] = useState({
+    og_title: '',
+    og_description: '',
+    og_image: '',
+    og_url: '',
+    og_type: 'website',
+    og_site_name: '',
+    og_locale: 'pl_PL',
+    twitter_card: 'summary_large_image',
+    twitter_title: '',
+    twitter_description: '',
+    twitter_image: '',
+    twitter_site: '',
   })
 
   const toggleSchema = (type: SchemaType) => {
@@ -340,6 +356,26 @@ export default function CreateSchemaPage() {
         })
       }
 
+      if (selectedSchemas.has('OpenGraph')) {
+        schemas.push({
+          type: 'OpenGraph',
+          json: {
+            og_title: openGraphData.og_title || undefined,
+            og_description: openGraphData.og_description || undefined,
+            og_image: openGraphData.og_image || undefined,
+            og_url: openGraphData.og_url || undefined,
+            og_type: openGraphData.og_type || 'website',
+            og_site_name: openGraphData.og_site_name || undefined,
+            og_locale: openGraphData.og_locale || 'pl_PL',
+            twitter_card: openGraphData.twitter_card || 'summary_large_image',
+            twitter_title: openGraphData.twitter_title || undefined,
+            twitter_description: openGraphData.twitter_description || undefined,
+            twitter_image: openGraphData.twitter_image || undefined,
+            twitter_site: openGraphData.twitter_site || undefined,
+          }
+        })
+      }
+
       // Insert all schemas
       for (const schema of schemas) {
         await supabase.from('schemas').insert({
@@ -382,7 +418,7 @@ export default function CreateSchemaPage() {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Wybierz typy schematów</h2>
           <div className="space-y-3">
-            {(['LocalBusiness', 'Review', 'Product', 'Service', 'FAQPage', 'Article', 'BreadcrumbList', 'WebPage'] as SchemaType[]).map(type => (
+            {(['LocalBusiness', 'Review', 'Product', 'Service', 'FAQPage', 'Article', 'BreadcrumbList', 'WebPage', 'OpenGraph'] as SchemaType[]).map(type => (
               <label key={type} className="flex items-center gap-3 p-3 border-2 border-gray-200 rounded-lg hover:border-indigo-300 cursor-pointer transition-colors">
                 <input
                   type="checkbox"
@@ -392,6 +428,7 @@ export default function CreateSchemaPage() {
                 />
                 <div className="flex-1">
                   <div className="font-medium text-gray-900">{type}</div>
+                  {type === 'OpenGraph' && <div className="text-xs text-gray-500">Meta tagi dla social media</div>}
                 </div>
               </label>
             ))}
@@ -705,6 +742,48 @@ export default function CreateSchemaPage() {
                 <textarea placeholder="Odpowiedź" value={q.answer} onChange={(e) => { const newQ = [...faqData.questions]; newQ[idx].answer = e.target.value; setFaqData({ questions: newQ }) }} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" rows={2} />
               </div>
             ))}
+          </div>
+        )}
+
+        {/* OpenGraph Form */}
+        {selectedSchemas.has('OpenGraph') && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Open Graph - Meta tagi dla social media</h2>
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Open Graph</h3>
+                <div className="space-y-3">
+                  <input type="text" placeholder="Tytuł (og:title)" value={openGraphData.og_title} onChange={(e) => setOpenGraphData({ ...openGraphData, og_title: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+                  <textarea placeholder="Opis (og:description)" value={openGraphData.og_description} onChange={(e) => setOpenGraphData({ ...openGraphData, og_description: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" rows={2} />
+                  <input type="url" placeholder="URL obrazka (og:image)" value={openGraphData.og_image} onChange={(e) => setOpenGraphData({ ...openGraphData, og_image: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+                  <input type="url" placeholder="URL strony (og:url)" value={openGraphData.og_url} onChange={(e) => setOpenGraphData({ ...openGraphData, og_url: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <select value={openGraphData.og_type} onChange={(e) => setOpenGraphData({ ...openGraphData, og_type: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md">
+                      <option value="website">Website</option>
+                      <option value="article">Article</option>
+                      <option value="product">Product</option>
+                    </select>
+                    <input type="text" placeholder="Nazwa witryny (og:site_name)" value={openGraphData.og_site_name} onChange={(e) => setOpenGraphData({ ...openGraphData, og_site_name: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="pt-4 border-t border-gray-200">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Twitter Card</h3>
+                <div className="space-y-3">
+                  <select value={openGraphData.twitter_card} onChange={(e) => setOpenGraphData({ ...openGraphData, twitter_card: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    <option value="summary">Summary</option>
+                    <option value="summary_large_image">Summary Large Image</option>
+                    <option value="app">App</option>
+                    <option value="player">Player</option>
+                  </select>
+                  <input type="text" placeholder="Tytuł Twitter (opcjonalne)" value={openGraphData.twitter_title} onChange={(e) => setOpenGraphData({ ...openGraphData, twitter_title: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+                  <textarea placeholder="Opis Twitter (opcjonalne)" value={openGraphData.twitter_description} onChange={(e) => setOpenGraphData({ ...openGraphData, twitter_description: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" rows={2} />
+                  <input type="url" placeholder="URL obrazka Twitter (opcjonalne)" value={openGraphData.twitter_image} onChange={(e) => setOpenGraphData({ ...openGraphData, twitter_image: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+                  <input type="text" placeholder="@handle Twitter (np. @twojastrona)" value={openGraphData.twitter_site} onChange={(e) => setOpenGraphData({ ...openGraphData, twitter_site: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+                </div>
+              </div>
+            </div>
           </div>
         )}
 

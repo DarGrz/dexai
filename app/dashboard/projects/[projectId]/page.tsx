@@ -42,8 +42,8 @@ export default async function ProjectPage({
   const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || `${protocol}://${host}`
   
-  // JavaScript snippet (for dynamic loading)
-  const jsSnippet = `<script src="${baseUrl}/embed.js" data-project="${projectId}" data-api="${baseUrl}/api/schema" defer></script>`
+  // JavaScript snippet (for dynamic loading) - uses schema-html endpoint
+  const jsSnippet = `<script src="${baseUrl}/embed.js" data-project="${projectId}" data-api="${baseUrl}/api/schema-html" defer></script>`
   
   // Server-side snippet (for SEO - Google can see it)
   const seoSnippet = `<?php

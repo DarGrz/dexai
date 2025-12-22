@@ -92,7 +92,22 @@ type FAQFormData = {
   }>
 }
 
-type FormData = LocalBusinessFormData | AggregateRatingFormData | ReviewFormData | ArticleFormData | BreadcrumbFormData | WebPageFormData | ServiceFormData | ProductFormData | FAQFormData
+type OpenGraphFormData = {
+  og_title: string
+  og_description: string
+  og_image: string
+  og_url: string
+  og_type: string
+  og_site_name: string
+  og_locale: string
+  twitter_card: string
+  twitter_title: string
+  twitter_description: string
+  twitter_image: string
+  twitter_site: string
+}
+
+type FormData = LocalBusinessFormData | AggregateRatingFormData | ReviewFormData | ArticleFormData | BreadcrumbFormData | WebPageFormData | ServiceFormData | ProductFormData | FAQFormData | OpenGraphFormData
 
 export function EditSchemaForm({ 
   schema, 
@@ -202,6 +217,21 @@ export function EditSchemaForm({
           question: q.name || '',
           answer: q.acceptedAnswer?.text || '',
         })) || [{ question: '', answer: '' }]
+      }
+    } else if (schema.type === 'OpenGraph') {
+      return {
+        og_title: jsonData.og_title || '',
+        og_description: jsonData.og_description || '',
+        og_image: jsonData.og_image || '',
+        og_url: jsonData.og_url || '',
+        og_type: jsonData.og_type || 'website',
+        og_site_name: jsonData.og_site_name || '',
+        og_locale: jsonData.og_locale || 'pl_PL',
+        twitter_card: jsonData.twitter_card || 'summary_large_image',
+        twitter_title: jsonData.twitter_title || '',
+        twitter_description: jsonData.twitter_description || '',
+        twitter_image: jsonData.twitter_image || '',
+        twitter_site: jsonData.twitter_site || '',
       }
     }
     
@@ -375,6 +405,22 @@ export function EditSchemaForm({
             name: q.question,
             acceptedAnswer: { '@type': 'Answer', text: q.answer }
           }))
+        }
+      } else if (schema.type === 'OpenGraph') {
+        const data = formData as OpenGraphFormData
+        updatedJsonData = {
+          og_title: data.og_title || undefined,
+          og_description: data.og_description || undefined,
+          og_image: data.og_image || undefined,
+          og_url: data.og_url || undefined,
+          og_type: data.og_type || 'website',
+          og_site_name: data.og_site_name || undefined,
+          og_locale: data.og_locale || 'pl_PL',
+          twitter_card: data.twitter_card || 'summary_large_image',
+          twitter_title: data.twitter_title || undefined,
+          twitter_description: data.twitter_description || undefined,
+          twitter_image: data.twitter_image || undefined,
+          twitter_site: data.twitter_site || undefined,
         }
       }
 
@@ -1004,6 +1050,116 @@ export function EditSchemaForm({
                   />
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* OpenGraph Form */}
+          {schema.type === 'OpenGraph' && (
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-medium text-gray-700 mb-3">Open Graph</h3>
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    placeholder="Tytuł (og:title)"
+                    value={(formData as OpenGraphFormData).og_title}
+                    onChange={(e) => setFormData({ ...(formData as OpenGraphFormData), og_title: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  />
+                  <textarea
+                    placeholder="Opis (og:description)"
+                    value={(formData as OpenGraphFormData).og_description}
+                    onChange={(e) => setFormData({ ...(formData as OpenGraphFormData), og_description: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    rows={2}
+                  />
+                  <input
+                    type="url"
+                    placeholder="URL obrazka (og:image)"
+                    value={(formData as OpenGraphFormData).og_image}
+                    onChange={(e) => setFormData({ ...(formData as OpenGraphFormData), og_image: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  />
+                  <input
+                    type="url"
+                    placeholder="URL strony (og:url)"
+                    value={(formData as OpenGraphFormData).og_url}
+                    onChange={(e) => setFormData({ ...(formData as OpenGraphFormData), og_url: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  />
+                  <div className="grid grid-cols-2 gap-4">
+                    <select
+                      value={(formData as OpenGraphFormData).og_type}
+                      onChange={(e) => setFormData({ ...(formData as OpenGraphFormData), og_type: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    >
+                      <option value="website">Website</option>
+                      <option value="article">Article</option>
+                      <option value="product">Product</option>
+                    </select>
+                    <input
+                      type="text"
+                      placeholder="Nazwa witryny (og:site_name)"
+                      value={(formData as OpenGraphFormData).og_site_name}
+                      onChange={(e) => setFormData({ ...(formData as OpenGraphFormData), og_site_name: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    />
+                  </div>
+                  <select
+                    value={(formData as OpenGraphFormData).og_locale}
+                    onChange={(e) => setFormData({ ...(formData as OpenGraphFormData), og_locale: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="pl_PL">Polski (pl_PL)</option>
+                    <option value="en_US">English (en_US)</option>
+                    <option value="en_GB">English UK (en_GB)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-gray-200">
+                <h3 className="text-sm font-medium text-gray-700 mb-3">Twitter Card</h3>
+                <div className="space-y-3">
+                  <select
+                    value={(formData as OpenGraphFormData).twitter_card}
+                    onChange={(e) => setFormData({ ...(formData as OpenGraphFormData), twitter_card: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="summary">Summary</option>
+                    <option value="summary_large_image">Summary Large Image</option>
+                    <option value="app">App</option>
+                    <option value="player">Player</option>
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="Tytuł Twitter (opcjonalne)"
+                    value={(formData as OpenGraphFormData).twitter_title}
+                    onChange={(e) => setFormData({ ...(formData as OpenGraphFormData), twitter_title: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  />
+                  <textarea
+                    placeholder="Opis Twitter (opcjonalne)"
+                    value={(formData as OpenGraphFormData).twitter_description}
+                    onChange={(e) => setFormData({ ...(formData as OpenGraphFormData), twitter_description: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    rows={2}
+                  />
+                  <input
+                    type="url"
+                    placeholder="URL obrazka Twitter (opcjonalne)"
+                    value={(formData as OpenGraphFormData).twitter_image}
+                    onChange={(e) => setFormData({ ...(formData as OpenGraphFormData), twitter_image: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  />
+                  <input
+                    type="text"
+                    placeholder="@handle Twitter (np. @twojastrona)"
+                    value={(formData as OpenGraphFormData).twitter_site}
+                    onChange={(e) => setFormData({ ...(formData as OpenGraphFormData), twitter_site: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+              </div>
             </div>
           )}
 
