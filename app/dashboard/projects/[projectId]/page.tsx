@@ -41,7 +41,17 @@ export default async function ProjectPage({
   const host = headersList.get('host') || 'dexai.pl'
   const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || `${protocol}://${host}`
-  const snippetCode = `<script src="${baseUrl}/embed.js" data-project="${projectId}" data-api="${baseUrl}/api/schema" defer></script>`
+  
+  // JavaScript snippet (for dynamic loading)
+  const jsSnippet = `<script src="${baseUrl}/embed.js" data-project="${projectId}" data-api="${baseUrl}/api/schema" defer></script>`
+  
+  // Server-side snippet (for SEO - Google can see it)
+  const seoSnippet = `<?php
+// Snippet dla SEO - Google widzi statyczny HTML
+$schema_url = '${baseUrl}/api/schema-html?projectId=${projectId}';
+$schema_html = file_get_contents($schema_url);
+echo $schema_html;
+?>`
 
   return (
     <div>
@@ -65,13 +75,58 @@ export default async function ProjectPage({
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
               Kod do wklejenia na stronie
             </h2>
-            <p className="text-sm text-gray-600 mb-4">
-              Skopiuj poniższy kod i wklej go w sekcji <code className="bg-gray-100 px-2 py-1 rounded">&lt;head&gt;</code> swojej strony
-            </p>
-            <div className="bg-gray-900 text-gray-100 p-4 rounded-md font-mono text-sm overflow-x-auto">
-              <code>{snippetCode}</code>
+            
+            {/* SEO Snippet (for PHP/Server-side) */}
+            <div className="mb-6">
+              <h3 className="text-sm font-medium text-gray-700 mb-2">
+                ✅ Dla SEO (zalecane - Google widzi schematy)
+              </h3>
+              <p className="text-xs text-gray-600 mb-3">
+                Dla stron PHP - wklej w <code className="bg-gray-100 px-1 rounded">&lt;head&gt;</code>
+              </p>
+              <div className="bg-gray-900 text-gray-100 p-4 rounded-md font-mono text-xs overflow-x-auto mb-2">
+                <code>{seoSnippet}</code>
+              </div>
+              <CopyButton text={seoSnippet} />
             </div>
-            <CopyButton text={snippetCode} />
+
+            {/* Direct URL */}
+            <div className="mb-6">
+              <h3 className="text-sm font-medium text-gray-700 mb-2">
+                📄 Bezpośredni URL do schematów HTML
+              </h3>
+              <p className="text-xs text-gray-600 mb-3">
+                Otwórz ten URL i skopiuj zawartość bezpośrednio do swojego HTML
+              </p>
+              <div className="bg-gray-900 text-gray-100 p-4 rounded-md font-mono text-xs overflow-x-auto mb-2 break-all">
+                <code>{baseUrl}/api/schema-html?projectId={projectId}</code>
+              </div>
+              <div className="flex gap-2">
+                <CopyButton text={`${baseUrl}/api/schema-html?projectId=${projectId}`} />
+                <a
+                  href={`${baseUrl}/api/schema-html?projectId=${projectId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded hover:bg-indigo-700"
+                >
+                  Otwórz URL
+                </a>
+              </div>
+            </div>
+
+            {/* JavaScript Snippet */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-700 mb-2">
+                ⚡ JavaScript (dynamiczne ładowanie)
+              </h3>
+              <p className="text-xs text-gray-600 mb-3">
+                Google może nie wykryć w testach, ale działa na live stronie
+              </p>
+              <div className="bg-gray-900 text-gray-100 p-4 rounded-md font-mono text-xs overflow-x-auto mb-2">
+                <code>{jsSnippet}</code>
+              </div>
+              <CopyButton text={jsSnippet} />
+            </div>
           </div>
 
           {/* Schemas List */}
