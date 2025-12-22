@@ -24,6 +24,9 @@ type LocalBusinessFormData = {
   email: string
   priceRange: string
   areaServed: string
+  includeRating: boolean
+  ratingValue: string
+  reviewCount: string
   openingHours: Array<{
     day: string
     opens: string
@@ -136,6 +139,9 @@ export function EditSchemaForm({
         email: jsonData.email || '',
         priceRange: jsonData.priceRange || '',
         areaServed: Array.isArray(jsonData.areaServed) ? jsonData.areaServed.join(', ') : (jsonData.areaServed || ''),
+        includeRating: !!jsonData.aggregateRating,
+        ratingValue: jsonData.aggregateRating?.ratingValue || '5.0',
+        reviewCount: jsonData.aggregateRating?.reviewCount || '10',
         openingHours,
       }
     } else if (schema.type === 'AggregateRating') {
@@ -197,7 +203,7 @@ export function EditSchemaForm({
       }
     }
     
-    return { name: '', description: '', street: '', city: '', postalCode: '', phone: '', email: '', priceRange: '', areaServed: '', openingHours: [] }
+    return { name: '', description: '', street: '', city: '', postalCode: '', phone: '', email: '', priceRange: '', areaServed: '', includeRating: false, ratingValue: '5.0', reviewCount: '10', openingHours: [] }
   })
 
   const [loading, setLoading] = useState(false)
@@ -245,6 +251,14 @@ export function EditSchemaForm({
           email: data.email,
           priceRange: data.priceRange,
           areaServed: data.areaServed ? data.areaServed.split(',').map(s => s.trim()).filter(s => s) : undefined,
+          ...(data.includeRating && {
+            aggregateRating: {
+              '@type': 'AggregateRating',
+              ratingValue: data.ratingValue,
+              bestRating: '5',
+              reviewCount: data.reviewCount,
+            }
+          }),
           openingHoursSpecification: openingHoursSpec,
         }
       } else if (schema.type === 'AggregateRating') {
@@ -523,6 +537,36 @@ export function EditSchemaForm({
                     placeholder="Obszar świadczenia usług - miasta/regiony oddzielone przecinkami (np. Warszawa, Praga, Mokotów)"
                     rows={2}
                   />
+                </div>
+                <div className="pt-4 border-t border-gray-200">
+                  <label className="flex items-center gap-2 mb-4">
+                    <input
+                      type="checkbox"
+                      checked={(formData as LocalBusinessFormData).includeRating}
+                      onChange={(e) => setFormData({ ...formData, includeRating: e.target.checked } as FormData)}
+                      className="w-4 h-4 text-indigo-600 rounded"
+                    />
+                    <span className="font-medium text-gray-900">Dodaj łączną ocenę (AggregateRating)</span>
+                  </label>
+                  {(formData as LocalBusinessFormData).includeRating && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <input
+                        type="number"
+                        step="0.1"
+                        placeholder="Średnia ocena (np. 5.0)"
+                        value={(formData as LocalBusinessFormData).ratingValue}
+                        onChange={(e) => setFormData({ ...formData, ratingValue: e.target.value } as FormData)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                      />
+                      <input
+                        type="number"
+                        placeholder="Liczba ocen"
+                        value={(formData as LocalBusinessFormData).reviewCount}
+                        onChange={(e) => setFormData({ ...formData, reviewCount: e.target.value } as FormData)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
 

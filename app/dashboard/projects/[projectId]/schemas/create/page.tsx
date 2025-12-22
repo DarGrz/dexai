@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react'
 
-type SchemaType = 'LocalBusiness' | 'AggregateRating' | 'Product' | 'FAQPage' | 'Review' | 'Article' | 'BreadcrumbList' | 'WebPage' | 'Service'
+type SchemaType = 'LocalBusiness' | 'Product' | 'FAQPage' | 'Review' | 'Article' | 'BreadcrumbList' | 'WebPage' | 'Service'
 
 export default function CreateSchemaPage() {
   const params = useParams()
@@ -30,6 +30,9 @@ export default function CreateSchemaPage() {
     email: '',
     priceRange: '',
     areaServed: '',
+    includeRating: false,
+    ratingValue: '5.0',
+    reviewCount: '10',
     openingHours: [
       { day: 'Monday', opens: '09:00', closes: '17:00', closed: false },
       { day: 'Tuesday', opens: '09:00', closes: '17:00', closed: false },
@@ -39,13 +42,6 @@ export default function CreateSchemaPage() {
       { day: 'Saturday', opens: '10:00', closes: '14:00', closed: false },
       { day: 'Sunday', opens: '', closes: '', closed: true },
     ],
-  })
-
-  // AggregateRating
-  const [ratingData, setRatingData] = useState({
-    itemName: '',
-    ratingValue: '4.8',
-    ratingCount: '10',
   })
 
   // Review
@@ -196,24 +192,15 @@ export default function CreateSchemaPage() {
             email: localBusinessData.email,
             priceRange: localBusinessData.priceRange,
             areaServed: localBusinessData.areaServed ? localBusinessData.areaServed.split(',').map(s => s.trim()).filter(s => s) : undefined,
+            ...(localBusinessData.includeRating && {
+              aggregateRating: {
+                '@type': 'AggregateRating',
+                ratingValue: localBusinessData.ratingValue,
+                bestRating: '5',
+                reviewCount: localBusinessData.reviewCount,
+              }
+            }),
             openingHoursSpecification: openingHoursSpec,
-          }
-        })
-      }
-
-      if (selectedSchemas.has('AggregateRating')) {
-        schemas.push({
-          type: 'AggregateRating',
-          json: {
-            '@context': 'https://schema.org',
-            '@type': 'LocalBusiness',
-            name: ratingData.itemName,
-            aggregateRating: {
-              '@type': 'AggregateRating',
-              ratingValue: ratingData.ratingValue,
-              bestRating: '5',
-              ratingCount: ratingData.ratingCount,
-            },
           }
         })
       }
@@ -388,7 +375,7 @@ export default function CreateSchemaPage() {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Wybierz typy schematów</h2>
           <div className="space-y-3">
-            {(['LocalBusiness', 'AggregateRating', 'Review', 'Product', 'Service', 'FAQPage', 'Article', 'BreadcrumbList', 'WebPage'] as SchemaType[]).map(type => (
+            {(['LocalBusiness', 'Review', 'Product', 'Service', 'FAQPage', 'Article', 'BreadcrumbList', 'WebPage'] as SchemaType[]).map(type => (
               <label key={type} className="flex items-center gap-3 p-3 border-2 border-gray-200 rounded-lg hover:border-indigo-300 cursor-pointer transition-colors">
                 <input
                   type="checkbox"
@@ -423,6 +410,37 @@ export default function CreateSchemaPage() {
               <input type="text" placeholder="Zakres cenowy (np. $$)" value={localBusinessData.priceRange} onChange={(e) => setLocalBusinessData({ ...localBusinessData, priceRange: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
               <textarea placeholder="Obszar świadczenia usług - miasta/regiony oddzielone przecinkami (np. Warszawa, Praga, Mokotów)" value={localBusinessData.areaServed} onChange={(e) => setLocalBusinessData({ ...localBusinessData, areaServed: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" rows={2} />
               
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <label className="flex items-center gap-2 mb-4">
+                  <input
+                    type="checkbox"
+                    checked={localBusinessData.includeRating}
+                    onChange={(e) => setLocalBusinessData({ ...localBusinessData, includeRating: e.target.checked })}
+                    className="w-4 h-4 text-indigo-600 rounded"
+                  />
+                  <span className="font-medium text-gray-900">Dodaj łączną ocenę (AggregateRating)</span>
+                </label>
+                {localBusinessData.includeRating && (
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <input
+                      type="number"
+                      step="0.1"
+                      placeholder="Średnia ocena (np. 5.0)"
+                      value={localBusinessData.ratingValue}
+                      onChange={(e) => setLocalBusinessData({ ...localBusinessData, ratingValue: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Liczba ocen"
+                      value={localBusinessData.reviewCount}
+                      onChange={(e) => setLocalBusinessData({ ...localBusinessData, reviewCount: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    />
+                  </div>
+                )}
+              </div>
+
               <div className="mt-4 pt-4 border-t border-gray-200">
                 <h3 className="font-medium text-gray-900 mb-3">Godziny otwarcia</h3>
                 <div className="space-y-2">
@@ -471,21 +489,6 @@ export default function CreateSchemaPage() {
                   ))}
                 </div>
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* AggregateRating Form */}
-        {selectedSchemas.has('AggregateRating') && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">AggregateRating - Łączna ocena</h2>
-            <div className="space-y-4">
-              <input type="text" required placeholder="Nazwa (np. nazwa firmy) *" value={ratingData.itemName} onChange={(e) => setRatingData({ ...ratingData, itemName: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
-              <div className="grid grid-cols-2 gap-4">
-                <input type="number" step="0.1" placeholder="Średnia ocena (np. 4.8)" value={ratingData.ratingValue} onChange={(e) => setRatingData({ ...ratingData, ratingValue: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
-                <input type="number" placeholder="Liczba ocen" value={ratingData.ratingCount} onChange={(e) => setRatingData({ ...ratingData, ratingCount: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
-              </div>
-              <p className="text-sm text-gray-500">💡 Dodaj pojedyncze opinie używając typu &quot;Review&quot;</p>
             </div>
           </div>
         )}
