@@ -3,12 +3,12 @@ import { headers } from 'next/headers'
 import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-12-15.clover',
-})
-
 export async function GET(request: Request) {
   try {
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      apiVersion: '2025-12-15.clover',
+    })
+    
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
