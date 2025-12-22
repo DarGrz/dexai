@@ -7,9 +7,19 @@ CREATE TABLE IF NOT EXISTS public.user_profiles (
   email TEXT NOT NULL,
   is_promo BOOLEAN DEFAULT true,
   domain_count INTEGER DEFAULT 0,
-  subscription_status TEXT DEFAULT 'active',
+  subscription_status TEXT DEFAULT 'inactive',
   stripe_customer_id TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  stripe_subscription_id TEXT,
+  subscription_end_date TIMESTAMPTZ,
+  billing_name TEXT,
+  billing_address_line1 TEXT,
+  billing_address_line2 TEXT,
+  billing_city TEXT,
+  billing_postal_code TEXT,
+  billing_country TEXT,
+  billing_tax_id TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Create projects table
@@ -62,32 +72,39 @@ ALTER TABLE public.schemas ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.schema_edits ENABLE ROW LEVEL SECURITY;
 
 -- user_profiles policies
+DROP POLICY IF EXISTS "Users can view own profile" ON public.user_profiles;
 CREATE POLICY "Users can view own profile"
   ON public.user_profiles FOR SELECT
   USING (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Users can update own profile" ON public.user_profiles;
 CREATE POLICY "Users can update own profile"
   ON public.user_profiles FOR UPDATE
   USING (auth.uid() = id);
 
 -- projects policies
+DROP POLICY IF EXISTS "Users can view own projects" ON public.projects;
 CREATE POLICY "Users can view own projects"
   ON public.projects FOR SELECT
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert own projects" ON public.projects;
 CREATE POLICY "Users can insert own projects"
   ON public.projects FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update own projects" ON public.projects;
 CREATE POLICY "Users can update own projects"
   ON public.projects FOR UPDATE
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete own projects" ON public.projects;
 CREATE POLICY "Users can delete own projects"
   ON public.projects FOR DELETE
   USING (auth.uid() = user_id);
 
 -- schemas policies
+DROP POLICY IF EXISTS "Users can view schemas of own projects" ON public.schemas;
 CREATE POLICY "Users can view schemas of own projects"
   ON public.schemas FOR SELECT
   USING (
@@ -98,6 +115,7 @@ CREATE POLICY "Users can view schemas of own projects"
     )
   );
 
+DROP POLICY IF EXISTS "Users can insert schemas to own projects" ON public.schemas;
 CREATE POLICY "Users can insert schemas to own projects"
   ON public.schemas FOR INSERT
   WITH CHECK (
@@ -108,6 +126,7 @@ CREATE POLICY "Users can insert schemas to own projects"
     )
   );
 
+DROP POLICY IF EXISTS "Users can update schemas of own projects" ON public.schemas;
 CREATE POLICY "Users can update schemas of own projects"
   ON public.schemas FOR UPDATE
   USING (
@@ -118,6 +137,7 @@ CREATE POLICY "Users can update schemas of own projects"
     )
   );
 
+DROP POLICY IF EXISTS "Users can delete schemas of own projects" ON public.schemas;
 CREATE POLICY "Users can delete schemas of own projects"
   ON public.schemas FOR DELETE
   USING (
@@ -129,10 +149,12 @@ CREATE POLICY "Users can delete schemas of own projects"
   );
 
 -- schema_edits policies
+DROP POLICY IF EXISTS "Users can view own edits" ON public.schema_edits;
 CREATE POLICY "Users can view own edits"
   ON public.schema_edits FOR SELECT
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert own edits" ON public.schema_edits;
 CREATE POLICY "Users can insert own edits"
   ON public.schema_edits FOR INSERT
   WITH CHECK (auth.uid() = user_id);

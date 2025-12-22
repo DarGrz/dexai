@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { CopyButton } from './components/CopyButton'
+import { headers } from 'next/headers'
 
 export default async function ProjectPage({
   params,
@@ -35,8 +36,11 @@ export default async function ProjectPage({
     .eq('project_id', projectId)
     .order('created_at', { ascending: false })
 
-  // Get base URL for snippet (use environment variable or default to current host)
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  // Get base URL for snippet
+  const headersList = await headers()
+  const host = headersList.get('host') || 'dexai.pl'
+  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || `${protocol}://${host}`
   const snippetCode = `<script src="${baseUrl}/embed.js" data-project="${projectId}" data-api="${baseUrl}/api/schema" defer></script>`
 
   return (

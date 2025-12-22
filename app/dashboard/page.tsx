@@ -6,6 +6,16 @@ export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
+  // Fetch user profile
+  const { data: profile } = await supabase
+    .from('user_profiles')
+    .select('*')
+    .eq('id', user!.id)
+    .single()
+
+  const isActive = profile?.subscription_status === 'active'
+  const isPromo = profile?.is_promo
+
   // Fetch user's projects
   const { data: projects } = await supabase
     .from('projects')
@@ -13,24 +23,134 @@ export default async function DashboardPage() {
     .eq('user_id', user!.id)
     .order('created_at', { ascending: false })
 
-  const canAddProject = !projects || projects.length === 0
+  const canAddProject = (!projects || projects.length === 0) && isActive
+
+  // Show payment prompt if not subscribed
+  if (!isActive) {
+    return (
+      <div className="max-w-2xl mx-auto py-12">
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-8 text-white text-center">
+            <h1 className="text-3xl font-bold mb-2">🚀 Witaj w DexAi!</h1>
+            <p className="text-indigo-100 text-lg">
+              Optymalizuj widoczność swojej strony w wyszukiwarkach AI
+            </p>
+          </div>
+          
+          <div className="p-8">
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                Aktywuj swój plan
+              </h2>
+              <p className="text-gray-600 mb-6">
+                Aby rozpocząć korzystanie z DexAi, wybierz plan subskrypcji.
+              </p>
+              
+              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg p-6 border-2 border-indigo-200">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">Plan Standard</h3>
+                    <p className="text-sm text-gray-600 mt-1">Pełny dostęp do wszystkich funkcji</p>
+                  </div>
+                  {isPromo && (
+                    <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                      PROMOCJA
+                    </span>
+                  )}
+                </div>
+                
+                <div className="mb-6">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-bold text-gray-900">
+                      {isPromo ? '49' : '99'} PLN
+                    </span>
+                    <span className="text-gray-600">/miesiąc</span>
+                  </div>
+                  {isPromo && (
+                    <p className="text-sm text-green-700 font-medium mt-1">
+                      Oszczędzasz 50 PLN miesięcznie!
+                    </p>
+                  )}
+                </div>
+                
+                <ul className="space-y-3 mb-6">
+                  <li className="flex items-start gap-2">
+                    <svg className="w-5 h-5 text-green-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                    </svg>
+                    <span className="text-gray-700">1 domena</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <svg className="w-5 h-5 text-green-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                    </svg>
+                    <span className="text-gray-700">4 typy schematów (LocalBusiness, Reviews, Products, FAQ)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <svg className="w-5 h-5 text-green-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                    </svg>
+                    <span className="text-gray-700">5 edycji/miesiąc</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <svg className="w-5 h-5 text-green-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                    </svg>
+                    <span className="text-gray-700">Automatyczna optymalizacja AI</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <svg className="w-5 h-5 text-green-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                    </svg>
+                    <span className="text-gray-700">Generator snippetów</span>
+                  </li>
+                </ul>
+                
+                <div className="text-center">
+                  <Link
+                    href="/dashboard/checkout"
+                    className="inline-block w-full bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
+                  >
+                    Aktywuj plan - 49 PLN/mies.
+                  </Link>
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-center text-sm text-gray-500">
+              <p>🔒 Bezpieczne płatności obsługiwane przez Stripe</p>
+              <p className="mt-1">Możesz anulować subskrypcję w każdej chwili</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Twoje projekty</h1>
-        {canAddProject ? (
+        <div className="flex gap-3">
           <Link
-            href="/dashboard/projects/new"
-            className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 font-medium"
+            href="/dashboard/settings"
+            className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 font-medium"
           >
-            + Dodaj domenę
+            ⚙️ Ustawienia
           </Link>
-        ) : (
-          <div className="text-sm text-gray-500">
-            Limit: 1/1 domena
-          </div>
-        )}
+          {canAddProject ? (
+            <Link
+              href="/dashboard/projects/new"
+              className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 font-medium"
+            >
+              + Dodaj domenę
+            </Link>
+          ) : (
+            <div className="text-sm text-gray-500 flex items-center">
+              Limit: 1/1 domena
+            </div>
+          )}
+        </div>
       </div>
 
       {!projects || projects.length === 0 ? (

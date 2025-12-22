@@ -10,12 +10,12 @@
   
   var projectId = script.getAttribute('data-project');
   if (!projectId) {
-    console.error('[Dexio] Brak atrybutu data-project');
+    console.error('[DexAi] Brak atrybutu data-project');
     return;
   }
   
   // Get API URL (with fallback to production)
-  var apiUrl = script.getAttribute('data-api') || 'https://dexio.pl/api/schema';
+  var apiUrl = script.getAttribute('data-api') || 'https://dexai.pl/api/schema';
   
   // Fetch schemas
   fetch(apiUrl + '?projectId=' + projectId)
@@ -35,14 +35,14 @@
       schemas.forEach(function(schema, index) {
         var scriptTag = document.createElement('script');
         scriptTag.type = 'application/ld+json';
-        scriptTag.id = 'dexio-schema-' + index;
+        scriptTag.id = 'dexai-schema-' + index;
         scriptTag.textContent = JSON.stringify(schema);
         document.head.appendChild(scriptTag);
       });
       
-      console.log('[Dexio] Załadowano ' + schemas.length + ' schematów');
+      console.log('[DexAi] Załadowano ' + schemas.length + ' schematów');
     })
     .catch(function(error) {
-      console.error('[Dexio] Błąd ładowania schematów:', error);
+      console.error('[DexAi] Błąd ładowania schematów:', error);
     });
 })();
