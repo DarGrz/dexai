@@ -5,10 +5,6 @@ import { CancelSubscriptionButton } from './components/CancelSubscriptionButton'
 import { ManageBillingButton } from './components/ManageBillingButton'
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-12-15.clover',
-})
-
 export default async function SettingsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -28,6 +24,10 @@ export default async function SettingsPage() {
   let invoices: any[] = []
   if (profile?.stripe_customer_id) {
     try {
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+        apiVersion: '2025-12-15.clover',
+      })
+      
       const stripeInvoices = await stripe.invoices.list({
         customer: profile.stripe_customer_id,
         limit: 20,
