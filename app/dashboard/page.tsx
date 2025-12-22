@@ -31,7 +31,7 @@ export default async function DashboardPage() {
       <div className="max-w-2xl mx-auto py-12">
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
           <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-8 text-white text-center">
-            <h1 className="text-3xl font-bold mb-2">🚀 Witaj w DexAi!</h1>
+            <h1 className="text-3xl font-bold mb-2">🚀 Witaj w DexAI!</h1>
             <p className="text-indigo-100 text-lg">
               Optymalizuj widoczność swojej strony w wyszukiwarkach AI
             </p>

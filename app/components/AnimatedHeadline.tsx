@@ -38,9 +38,9 @@ export default function AnimatedHeadline() {
   }, [index])
 
   return (
-    <div className="relative h-[120px] md:h-[150px] overflow-hidden mb-3">
+    <div className="relative h-[100px] md:h-[150px] overflow-hidden mb-3">
       <h1
-        className={`text-5xl md:text-6xl font-bold text-gray-900 leading-tight ease-in-out ${
+        className={`text-4xl md:text-6xl font-bold text-gray-900 leading-tight ease-in-out ${
           animationState === 'enter' ? '-translate-y-full opacity-0 transition-all duration-[500ms]' : 
           animationState === 'visible' ? 'translate-y-0 opacity-100 transition-all duration-[500ms]' : 
           'translate-y-full opacity-0 transition-all duration-[1300ms]'

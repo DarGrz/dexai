@@ -15,7 +15,7 @@ export default async function Home() {
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gray-900 rounded"></div>
-              <span className="text-xl font-bold text-gray-900">Dexai.pl</span>
+              <span className="text-xl font-bold text-gray-900">DexAI</span>
             </div>
             <div className="flex items-center space-x-4">
               {user ? (
@@ -101,8 +101,8 @@ export default async function Home() {
       {/* How We Work */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <div className="mb-16 px-4 sm:px-0">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Jak to działa?
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl">
@@ -156,8 +156,8 @@ export default async function Home() {
       {/* Why Choose Us */}
       <section className="py-20 bg-white border-y border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <div className="mb-16 px-4 sm:px-0">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Dlaczego Dexai?
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl">
@@ -220,10 +220,13 @@ export default async function Home() {
       {/* Testimonials */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <div className="mb-16 px-4 sm:px-0">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Co mówią nasi klienci
             </h2>
+            <p className="text-lg text-gray-600 max-w-3xl">
+              Zobacz, jak nasze rozwiązanie pomogło firmom zwiększyć widoczność w wynikach wyszukiwania AI
+            </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
@@ -273,8 +276,8 @@ export default async function Home() {
       {/* FAQ */}
       <section className="py-20 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <div className="mb-16 px-4 sm:px-0">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Często zadawane pytania
             </h2>
           </div>
@@ -336,7 +339,7 @@ export default async function Home() {
       {/* Final CTA */}
       <section className="py-20 bg-gray-900">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+          <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
             Gotowy na widoczność w erze AI?
           </h2>
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
