@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react'
 
-type SchemaType = 'LocalBusiness' | 'AggregateRating' | 'Product' | 'FAQPage'
+type SchemaType = 'LocalBusiness' | 'AggregateRating' | 'Product' | 'FAQPage' | 'Review' | 'Article' | 'BreadcrumbList' | 'WebPage'
 
 export default function CreateSchemaPage() {
   const params = useParams()
@@ -45,9 +45,38 @@ export default function CreateSchemaPage() {
     itemName: '',
     ratingValue: '4.8',
     ratingCount: '10',
-    reviews: [
-      { author: '', rating: '5', text: '', date: new Date().toISOString().split('T')[0] }
+  })
+
+  // Review
+  const [reviewData, setReviewData] = useState({
+    itemName: '',
+    authorName: '',
+    ratingValue: '5',
+    reviewBody: '',
+    datePublished: new Date().toISOString().split('T')[0],
+  })
+
+  // Article
+  const [articleData, setArticleData] = useState({
+    headline: '',
+    description: '',
+    url: '',
+    keywords: '',
+  })
+
+  // BreadcrumbList
+  const [breadcrumbData, setBreadcrumbData] = useState({
+    items: [
+      { name: 'Strona główna', url: '/' },
+      { name: '', url: '' },
     ],
+  })
+
+  // WebPage
+  const [webPageData, setWebPageData] = useState({
+    name: '',
+    description: '',
+    url: '',
   })
 
   // Product
@@ -174,20 +203,82 @@ export default function CreateSchemaPage() {
               bestRating: '5',
               ratingCount: ratingData.ratingCount,
             },
-            review: ratingData.reviews.filter(r => r.author && r.text).map(review => ({
-              '@type': 'Review',
-              author: {
-                '@type': 'Person',
-                name: review.author,
-              },
-              reviewRating: {
-                '@type': 'Rating',
-                ratingValue: review.rating,
-                bestRating: '5',
-              },
-              reviewBody: review.text,
-              datePublished: review.date,
+          }
+        })
+      }
+
+      if (selectedSchemas.has('Review')) {
+        schemas.push({
+          type: 'Review',
+          json: {
+            '@context': 'https://schema.org',
+            '@type': 'Review',
+            author: {
+              '@type': 'Person',
+              name: reviewData.authorName,
+            },
+            reviewRating: {
+              '@type': 'Rating',
+              ratingValue: reviewData.ratingValue,
+              bestRating: '5',
+              worstRating: '1',
+            },
+            reviewBody: reviewData.reviewBody,
+            datePublished: reviewData.datePublished,
+            itemReviewed: {
+              '@type': 'Organization',
+              name: reviewData.itemName,
+            }
+          }
+        })
+      }
+
+      if (selectedSchemas.has('Article')) {
+        schemas.push({
+          type: 'Article',
+          json: {
+            '@context': 'https://schema.org',
+            '@type': 'Article',
+            headline: articleData.headline,
+            description: articleData.description,
+            url: articleData.url,
+            keywords: articleData.keywords,
+            articleSection: 'Business Reviews',
+            inLanguage: 'pl-PL',
+            publisher: {
+              '@type': 'Organization',
+              name: 'DexAi',
+            }
+          }
+        })
+      }
+
+      if (selectedSchemas.has('BreadcrumbList')) {
+        schemas.push({
+          type: 'BreadcrumbList',
+          json: {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: breadcrumbData.items.filter(i => i.name && i.url).map((item, idx) => ({
+              '@type': 'ListItem',
+              position: idx + 1,
+              name: item.name,
+              item: item.url,
             }))
+          }
+        })
+      }
+
+      if (selectedSchemas.has('WebPage')) {
+        schemas.push({
+          type: 'WebPage',
+          json: {
+            '@context': 'https://schema.org',
+            '@type': 'WebPage',
+            name: webPageData.name,
+            description: webPageData.description,
+            url: webPageData.url,
+            inLanguage: 'pl-PL',
           }
         })
       }
@@ -268,7 +359,7 @@ export default function CreateSchemaPage() {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Wybierz typy schematów</h2>
           <div className="space-y-3">
-            {(['LocalBusiness', 'AggregateRating', 'Product', 'FAQPage'] as SchemaType[]).map(type => (
+            {(['LocalBusiness', 'AggregateRating', 'Review', 'Product', 'FAQPage', 'Article', 'BreadcrumbList', 'WebPage'] as SchemaType[]).map(type => (
               <label key={type} className="flex items-center gap-3 p-3 border-2 border-gray-200 rounded-lg hover:border-indigo-300 cursor-pointer transition-colors">
                 <input
                   type="checkbox"
@@ -356,38 +447,84 @@ export default function CreateSchemaPage() {
         {/* AggregateRating Form */}
         {selectedSchemas.has('AggregateRating') && (
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Opinie i oceny</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">AggregateRating - Łączna ocena</h2>
             <div className="space-y-4">
               <input type="text" required placeholder="Nazwa (np. nazwa firmy) *" value={ratingData.itemName} onChange={(e) => setRatingData({ ...ratingData, itemName: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
               <div className="grid grid-cols-2 gap-4">
                 <input type="number" step="0.1" placeholder="Średnia ocena (np. 4.8)" value={ratingData.ratingValue} onChange={(e) => setRatingData({ ...ratingData, ratingValue: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
                 <input type="number" placeholder="Liczba ocen" value={ratingData.ratingCount} onChange={(e) => setRatingData({ ...ratingData, ratingCount: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
               </div>
-              
-              <div className="mt-4">
-                <div className="flex justify-between items-center mb-3">
-                  <h3 className="font-medium text-gray-900">Przykładowe opinie</h3>
-                  <button type="button" onClick={() => setRatingData({ ...ratingData, reviews: [...ratingData.reviews, { author: '', rating: '5', text: '', date: new Date().toISOString().split('T')[0] }] })} className="text-sm text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
-                    <Plus className="w-4 h-4" /> Dodaj opinię
-                  </button>
-                </div>
-                {ratingData.reviews.map((review, idx) => (
-                  <div key={idx} className="p-4 border border-gray-200 rounded-lg mb-3 space-y-2">
-                    <div className="flex justify-between">
-                      <input type="text" placeholder="Imię autora" value={review.author} onChange={(e) => { const newReviews = [...ratingData.reviews]; newReviews[idx].author = e.target.value; setRatingData({ ...ratingData, reviews: newReviews }) }} className="flex-1 mr-2 px-3 py-2 border border-gray-300 rounded-md text-sm" />
-                      <select value={review.rating} onChange={(e) => { const newReviews = [...ratingData.reviews]; newReviews[idx].rating = e.target.value; setRatingData({ ...ratingData, reviews: newReviews }) }} className="px-3 py-2 border border-gray-300 rounded-md text-sm">
-                        {['5','4','3','2','1'].map(r => <option key={r} value={r}>{r} ⭐</option>)}
-                      </select>
-                      {ratingData.reviews.length > 1 && (
-                        <button type="button" onClick={() => setRatingData({ ...ratingData, reviews: ratingData.reviews.filter((_, i) => i !== idx) })} className="ml-2 text-red-600 hover:text-red-700">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-                    <textarea placeholder="Treść opinii" value={review.text} onChange={(e) => { const newReviews = [...ratingData.reviews]; newReviews[idx].text = e.target.value; setRatingData({ ...ratingData, reviews: newReviews }) }} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" rows={2} />
-                  </div>
-                ))}
+              <p className="text-sm text-gray-500">💡 Dodaj pojedyncze opinie używając typu &quot;Review&quot;</p>
+            </div>
+          </div>
+        )}
+
+        {/* Review Form */}
+        {selectedSchemas.has('Review') && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Review - Pojedyncza opinia</h2>
+            <div className="space-y-4">
+              <input type="text" required placeholder="Nazwa firmy/produktu *" value={reviewData.itemName} onChange={(e) => setReviewData({ ...reviewData, itemName: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              <input type="text" required placeholder="Imię autora *" value={reviewData.authorName} onChange={(e) => setReviewData({ ...reviewData, authorName: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              <div className="grid grid-cols-2 gap-4">
+                <select value={reviewData.ratingValue} onChange={(e) => setReviewData({ ...reviewData, ratingValue: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md">
+                  <option value="5">5 ⭐⭐⭐⭐⭐</option>
+                  <option value="4">4 ⭐⭐⭐⭐</option>
+                  <option value="3">3 ⭐⭐⭐</option>
+                  <option value="2">2 ⭐⭐</option>
+                  <option value="1">1 ⭐</option>
+                </select>
+                <input type="date" value={reviewData.datePublished} onChange={(e) => setReviewData({ ...reviewData, datePublished: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
               </div>
+              <textarea required placeholder="Treść opinii *" value={reviewData.reviewBody} onChange={(e) => setReviewData({ ...reviewData, reviewBody: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" rows={4} />
+            </div>
+          </div>
+        )}
+
+        {/* Article Form */}
+        {selectedSchemas.has('Article') && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Article - Artykuł</h2>
+            <div className="space-y-4">
+              <input type="text" required placeholder="Tytuł artykułu *" value={articleData.headline} onChange={(e) => setArticleData({ ...articleData, headline: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              <textarea placeholder="Opis" value={articleData.description} onChange={(e) => setArticleData({ ...articleData, description: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" rows={2} />
+              <input type="url" placeholder="URL artykułu" value={articleData.url} onChange={(e) => setArticleData({ ...articleData, url: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              <input type="text" placeholder="Słowa kluczowe (oddzielone przecinkami)" value={articleData.keywords} onChange={(e) => setArticleData({ ...articleData, keywords: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+            </div>
+          </div>
+        )}
+
+        {/* BreadcrumbList Form */}
+        {selectedSchemas.has('BreadcrumbList') && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">BreadcrumbList - Okruszki nawigacyjne</h2>
+              <button type="button" onClick={() => setBreadcrumbData({ items: [...breadcrumbData.items, { name: '', url: '' }] })} className="text-sm text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
+                <Plus className="w-4 h-4" /> Dodaj poziom
+              </button>
+            </div>
+            {breadcrumbData.items.map((item, idx) => (
+              <div key={idx} className="flex gap-2 mb-2">
+                <input type="text" placeholder="Nazwa" value={item.name} onChange={(e) => { const newItems = [...breadcrumbData.items]; newItems[idx].name = e.target.value; setBreadcrumbData({ items: newItems }) }} className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                <input type="text" placeholder="URL" value={item.url} onChange={(e) => { const newItems = [...breadcrumbData.items]; newItems[idx].url = e.target.value; setBreadcrumbData({ items: newItems }) }} className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                {breadcrumbData.items.length > 1 && (
+                  <button type="button" onClick={() => setBreadcrumbData({ items: breadcrumbData.items.filter((_, i) => i !== idx) })} className="text-red-600 hover:text-red-700">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* WebPage Form */}
+        {selectedSchemas.has('WebPage') && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">WebPage - Strona internetowa</h2>
+            <div className="space-y-4">
+              <input type="text" required placeholder="Nazwa strony *" value={webPageData.name} onChange={(e) => setWebPageData({ ...webPageData, name: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              <textarea placeholder="Opis strony" value={webPageData.description} onChange={(e) => setWebPageData({ ...webPageData, description: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" rows={2} />
+              <input type="url" placeholder="URL strony" value={webPageData.url} onChange={(e) => setWebPageData({ ...webPageData, url: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
             </div>
           </div>
         )}

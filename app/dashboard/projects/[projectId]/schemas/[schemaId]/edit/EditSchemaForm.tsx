@@ -35,12 +35,34 @@ type AggregateRatingFormData = {
   itemName: string
   ratingValue: string
   ratingCount: string
-  reviews: Array<{
-    author: string
-    rating: string
-    text: string
-    date: string
+}
+
+type ReviewFormData = {
+  itemName: string
+  authorName: string
+  ratingValue: string
+  reviewBody: string
+  datePublished: string
+}
+
+type ArticleFormData = {
+  headline: string
+  description: string
+  url: string
+  keywords: string
+}
+
+type BreadcrumbFormData = {
+  items: Array<{
+    name: string
+    url: string
   }>
+}
+
+type WebPageFormData = {
+  name: string
+  description: string
+  url: string
 }
 
 type ProductFormData = {
@@ -58,7 +80,7 @@ type FAQFormData = {
   }>
 }
 
-type FormData = LocalBusinessFormData | AggregateRatingFormData | ProductFormData | FAQFormData
+type FormData = LocalBusinessFormData | AggregateRatingFormData | ReviewFormData | ArticleFormData | BreadcrumbFormData | WebPageFormData | ProductFormData | FAQFormData
 
 export function EditSchemaForm({ 
   schema, 
@@ -111,12 +133,34 @@ export function EditSchemaForm({
         itemName: jsonData.name || '',
         ratingValue: jsonData.aggregateRating?.ratingValue || '4.8',
         ratingCount: jsonData.aggregateRating?.ratingCount || '10',
-        reviews: jsonData.review?.map((r: any) => ({
-          author: r.author?.name || '',
-          rating: r.reviewRating?.ratingValue || '5',
-          text: r.reviewBody || '',
-          date: r.datePublished || new Date().toISOString().split('T')[0],
-        })) || [{ author: '', rating: '5', text: '', date: new Date().toISOString().split('T')[0] }]
+      }
+    } else if (schema.type === 'Review') {
+      return {
+        itemName: jsonData.itemReviewed?.name || '',
+        authorName: jsonData.author?.name || '',
+        ratingValue: jsonData.reviewRating?.ratingValue || '5',
+        reviewBody: jsonData.reviewBody || '',
+        datePublished: jsonData.datePublished || new Date().toISOString().split('T')[0],
+      }
+    } else if (schema.type === 'Article') {
+      return {
+        headline: jsonData.headline || '',
+        description: jsonData.description || '',
+        url: jsonData.url || '',
+        keywords: jsonData.keywords || '',
+      }
+    } else if (schema.type === 'BreadcrumbList') {
+      return {
+        items: jsonData.itemListElement?.map((item: any) => ({
+          name: item.name || '',
+          url: item.item || '',
+        })) || [{ name: 'Strona główna', url: '/' }],
+      }
+    } else if (schema.type === 'WebPage') {
+      return {
+        name: jsonData.name || '',
+        description: jsonData.description || '',
+        url: jsonData.url || '',
       }
     } else if (schema.type === 'Product') {
       return {
@@ -196,20 +240,66 @@ export function EditSchemaForm({
             bestRating: '5',
             ratingCount: data.ratingCount,
           },
-          review: data.reviews.filter(r => r.author && r.text).map(review => ({
-            '@type': 'Review',
-            author: {
-              '@type': 'Person',
-              name: review.author,
-            },
-            reviewRating: {
-              '@type': 'Rating',
-              ratingValue: review.rating,
-              bestRating: '5',
-            },
-            reviewBody: review.text,
-            datePublished: review.date,
+        }
+      } else if (schema.type === 'Review') {
+        const data = formData as ReviewFormData
+        updatedJsonData = {
+          '@context': 'https://schema.org',
+          '@type': 'Review',
+          author: {
+            '@type': 'Person',
+            name: data.authorName,
+          },
+          reviewRating: {
+            '@type': 'Rating',
+            ratingValue: data.ratingValue,
+            bestRating: '5',
+            worstRating: '1',
+          },
+          reviewBody: data.reviewBody,
+          datePublished: data.datePublished,
+          itemReviewed: {
+            '@type': 'Organization',
+            name: data.itemName,
+          }
+        }
+      } else if (schema.type === 'Article') {
+        const data = formData as ArticleFormData
+        updatedJsonData = {
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          headline: data.headline,
+          description: data.description,
+          url: data.url,
+          keywords: data.keywords,
+          articleSection: 'Business Reviews',
+          inLanguage: 'pl-PL',
+          publisher: {
+            '@type': 'Organization',
+            name: 'DexAi',
+          }
+        }
+      } else if (schema.type === 'BreadcrumbList') {
+        const data = formData as BreadcrumbFormData
+        updatedJsonData = {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: data.items.filter(i => i.name && i.url).map((item, idx) => ({
+            '@type': 'ListItem',
+            position: idx + 1,
+            name: item.name,
+            item: item.url,
           }))
+        }
+      } else if (schema.type === 'WebPage') {
+        const data = formData as WebPageFormData
+        updatedJsonData = {
+          '@context': 'https://schema.org',
+          '@type': 'WebPage',
+          name: data.name,
+          description: data.description,
+          url: data.url,
+          inLanguage: 'pl-PL',
         }
       } else if (schema.type === 'Product') {
         const data = formData as ProductFormData
@@ -460,7 +550,7 @@ export function EditSchemaForm({
           {schema.type === 'AggregateRating' && (
             <>
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Opinie i oceny</h2>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">AggregateRating - Łączna ocena</h2>
                 <div className="space-y-4">
                   <input
                     type="text"
@@ -487,82 +577,190 @@ export function EditSchemaForm({
                       className="w-full px-4 py-2 border border-gray-300 rounded-md"
                     />
                   </div>
-                  
-                  <div className="mt-4">
-                    <div className="flex justify-between items-center mb-3">
-                      <h3 className="font-medium text-gray-900">Przykładowe opinie</h3>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const data = formData as AggregateRatingFormData
-                          setFormData({
-                            ...formData,
-                            reviews: [...data.reviews, { author: '', rating: '5', text: '', date: new Date().toISOString().split('T')[0] }]
-                          } as FormData)
-                        }}
-                        className="text-sm text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
-                      >
-                        <Plus className="w-4 h-4" /> Dodaj opinię
-                      </button>
-                    </div>
-                    {(formData as AggregateRatingFormData).reviews.map((review, idx) => (
-                      <div key={idx} className="p-4 border border-gray-200 rounded-lg mb-3 space-y-2">
-                        <div className="flex gap-2">
-                          <input
-                            type="text"
-                            placeholder="Imię autora"
-                            value={review.author}
-                            onChange={(e) => {
-                              const data = formData as AggregateRatingFormData
-                              const newReviews = [...data.reviews]
-                              newReviews[idx].author = e.target.value
-                              setFormData({ ...formData, reviews: newReviews } as FormData)
-                            }}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
-                          />
-                          <select
-                            value={review.rating}
-                            onChange={(e) => {
-                              const data = formData as AggregateRatingFormData
-                              const newReviews = [...data.reviews]
-                              newReviews[idx].rating = e.target.value
-                              setFormData({ ...formData, reviews: newReviews } as FormData)
-                            }}
-                            className="px-3 py-2 border border-gray-300 rounded-md text-sm"
-                          >
-                            {['5','4','3','2','1'].map(r => <option key={r} value={r}>{r} ⭐</option>)}
-                          </select>
-                          {(formData as AggregateRatingFormData).reviews.length > 1 && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const data = formData as AggregateRatingFormData
-                                setFormData({ ...formData, reviews: data.reviews.filter((_, i) => i !== idx) } as FormData)
-                              }}
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          )}
-                        </div>
-                        <textarea
-                          placeholder="Treść opinii"
-                          value={review.text}
-                          onChange={(e) => {
-                            const data = formData as AggregateRatingFormData
-                            const newReviews = [...data.reviews]
-                            newReviews[idx].text = e.target.value
-                            setFormData({ ...formData, reviews: newReviews } as FormData)
-                          }}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                          rows={2}
-                        />
-                      </div>
-                    ))}
-                  </div>
+                  <p className="text-sm text-gray-500">💡 Dodaj pojedyncze opinie używając typu &quot;Review&quot;</p>
                 </div>
               </div>
             </>
+          )}
+
+          {/* Review Form */}
+          {schema.type === 'Review' && (
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Review - Pojedyncza opinia</h2>
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  required
+                  placeholder="Nazwa firmy/produktu *"
+                  value={(formData as ReviewFormData).itemName}
+                  onChange={(e) => setFormData({ ...formData, itemName: e.target.value } as FormData)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                />
+                <input
+                  type="text"
+                  required
+                  placeholder="Imię autora *"
+                  value={(formData as ReviewFormData).authorName}
+                  onChange={(e) => setFormData({ ...formData, authorName: e.target.value } as FormData)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                />
+                <div className="grid grid-cols-2 gap-4">
+                  <select
+                    value={(formData as ReviewFormData).ratingValue}
+                    onChange={(e) => setFormData({ ...formData, ratingValue: e.target.value } as FormData)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="5">5 ⭐⭐⭐⭐⭐</option>
+                    <option value="4">4 ⭐⭐⭐⭐</option>
+                    <option value="3">3 ⭐⭐⭐</option>
+                    <option value="2">2 ⭐⭐</option>
+                    <option value="1">1 ⭐</option>
+                  </select>
+                  <input
+                    type="date"
+                    value={(formData as ReviewFormData).datePublished}
+                    onChange={(e) => setFormData({ ...formData, datePublished: e.target.value } as FormData)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                  />
+                </div>
+                <textarea
+                  required
+                  placeholder="Treść opinii *"
+                  value={(formData as ReviewFormData).reviewBody}
+                  onChange={(e) => setFormData({ ...formData, reviewBody: e.target.value } as FormData)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                  rows={4}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Article Form */}
+          {schema.type === 'Article' && (
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Article - Artykuł</h2>
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  required
+                  placeholder="Tytuł artykułu *"
+                  value={(formData as ArticleFormData).headline}
+                  onChange={(e) => setFormData({ ...formData, headline: e.target.value } as FormData)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                />
+                <textarea
+                  placeholder="Opis"
+                  value={(formData as ArticleFormData).description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value } as FormData)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                  rows={2}
+                />
+                <input
+                  type="url"
+                  placeholder="URL artykułu"
+                  value={(formData as ArticleFormData).url}
+                  onChange={(e) => setFormData({ ...formData, url: e.target.value } as FormData)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                />
+                <input
+                  type="text"
+                  placeholder="Słowa kluczowe (oddzielone przecinkami)"
+                  value={(formData as ArticleFormData).keywords}
+                  onChange={(e) => setFormData({ ...formData, keywords: e.target.value } as FormData)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* BreadcrumbList Form */}
+          {schema.type === 'BreadcrumbList' && (
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">BreadcrumbList - Okruszki nawigacyjne</h2>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const data = formData as BreadcrumbFormData
+                    setFormData({ items: [...data.items, { name: '', url: '' }] } as FormData)
+                  }}
+                  className="text-sm text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
+                >
+                  <Plus className="w-4 h-4" /> Dodaj poziom
+                </button>
+              </div>
+              {(formData as BreadcrumbFormData).items.map((item, idx) => (
+                <div key={idx} className="flex gap-2 mb-2">
+                  <input
+                    type="text"
+                    placeholder="Nazwa"
+                    value={item.name}
+                    onChange={(e) => {
+                      const data = formData as BreadcrumbFormData
+                      const newItems = [...data.items]
+                      newItems[idx].name = e.target.value
+                      setFormData({ items: newItems } as FormData)
+                    }}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  />
+                  <input
+                    type="text"
+                    placeholder="URL"
+                    value={item.url}
+                    onChange={(e) => {
+                      const data = formData as BreadcrumbFormData
+                      const newItems = [...data.items]
+                      newItems[idx].url = e.target.value
+                      setFormData({ items: newItems } as FormData)
+                    }}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  />
+                  {(formData as BreadcrumbFormData).items.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const data = formData as BreadcrumbFormData
+                        setFormData({ items: data.items.filter((_, i) => i !== idx) } as FormData)
+                      }}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* WebPage Form */}
+          {schema.type === 'WebPage' && (
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">WebPage - Strona internetowa</h2>
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  required
+                  placeholder="Nazwa strony *"
+                  value={(formData as WebPageFormData).name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value } as FormData)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                />
+                <textarea
+                  placeholder="Opis strony"
+                  value={(formData as WebPageFormData).description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value } as FormData)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                  rows={2}
+                />
+                <input
+                  type="url"
+                  placeholder="URL strony"
+                  value={(formData as WebPageFormData).url}
+                  onChange={(e) => setFormData({ ...formData, url: e.target.value } as FormData)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+            </div>
           )}
 
           {/* Product Form */}
