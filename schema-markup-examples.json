@@ -1,0 +1,435 @@
+[
+  {
+    "type": "ProfessionalService",
+    "schema": {
+      "@context": "https://schema.org",
+      "@type": "ProfessionalService",
+      "@id": "https://wizaro.pl",
+      "name": "Wizaro.pl - Ochrona Wizerunku Online",
+      "image": "https://wizaro.pl/images/wizaro-logo.png",
+      "description": "Profesjonalna ochrona wizerunku firm w internecie. Kompleksowe wsparcie w zarządzaniu reputacją online i ochronie danych biznesowych.",
+      "url": "https://wizaro.pl",
+      "telephone": "792 861 513",
+      "email": "kontakt@wizaro.pl",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "reviewCount": "2183"
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "PL",
+        "addressLocality": "Kraków",
+        "postalCode": "31-636"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": "50.0615",
+        "longitude": "19.9425"
+      },
+      "areaServed": {
+        "@type": "Country",
+        "name": "PL"
+      },
+      "priceRange": "$$",
+      "openingHours": "Mo-Fr 09:00-17:00",
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Usługi ochrony wizerunku online",
+        "itemListElement": [
+          {
+            "@type": "Service",
+            "name": "Ochrona wizerunku w internecie",
+            "description": "Kompleksowe usługi ochrony wizerunku firmy w sieci",
+            "serviceType": "Ochrona wizerunku",
+            "provider": {
+              "@type": "Organization",
+              "name": "Wizaro.pl"
+            },
+            "areaServed": "PL"
+          },
+          {
+            "@type": "Service",
+            "name": "Zarządzanie reputacją online",
+            "description": "Profesjonalne zarządzanie reputacją biznesową w internecie",
+            "serviceType": "Ochrona wizerunku",
+            "provider": {
+              "@type": "Organization",
+              "name": "Wizaro.pl"
+            },
+            "areaServed": "PL"
+          },
+          {
+            "@type": "Service",
+            "name": "Ochrona danych biznesowych",
+            "description": "Ochrona danych i informacji biznesowych w sieci",
+            "serviceType": "Ochrona wizerunku",
+            "provider": {
+              "@type": "Organization",
+              "name": "Wizaro.pl"
+            },
+            "areaServed": "PL"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "Article",
+    "schema": {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Jak usunąć opinie z Aleo - Skuteczne metody usuwania 2025",
+      "description": "Profesjonalne usuwanie opinii i profili firm z serwisu Aleo. Skutecznie likwidujemy niechciane treści i dane firmowe. Płatność po wykonaniu usługi.",
+      "author": {
+        "@type": "Organization",
+        "name": "Wizaro",
+        "url": "https://wizaro.pl"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Wizaro",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://wizaro.pl/images/wizaro-logo.png"
+        }
+      },
+      "datePublished": "2025-12-19T10:58:32.860Z",
+      "dateModified": "2025-12-19T10:58:32.860Z",
+      "url": "https://wizaro.pl/jak-usunac-opinie-z-aleo",
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://wizaro.pl/jak-usunac-opinie-z-aleo"
+      },
+      "image": {
+        "@type": "ImageObject",
+        "url": "https://wizaro.pl/images/wizaro-logo.png"
+      },
+      "articleSection": "Legal Services",
+      "keywords": "usunąć opinie z aleo, jak usunąć firmę z aleo, usunąć dane z aleo, usuwanie profili aleo",
+      "inLanguage": "pl-PL",
+      "about": {
+        "@type": "Thing",
+        "name": "Ochrona wizerunku online",
+        "description": "Profesjonalne uslugi ochrony wizerunku w sieci"
+      }
+    }
+  },
+  {
+    "type": "Product",
+    "schema": {
+      "@context": "https://schema.org/",
+      "@type": "Product",
+      "name": "Usuwanie opinii z Aleo",
+      "description": "Profesjonalne usługi usuwania negatywnych opinii i profili firm z platformy Aleo.",
+      "image": "https://wizaro.pl/images/wizaro-logo.png",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": 4.9,
+        "reviewCount": 156,
+        "bestRating": 5
+      },
+      "offers": {
+        "@type": "Offer",
+        "url": "https://wizaro.pl/jak-usunac-opinie-z-aleo",
+        "priceCurrency": "PLN",
+        "price": "Na żądanie",
+        "availability": "https://schema.org/InStock",
+        "itemCondition": "https://schema.org/NewCondition"
+      },
+      "brand": {
+        "@type": "Organization",
+        "name": "Wizaro"
+      },
+      "category": "Professional Services"
+    }
+  },
+  {
+    "type": "AggregateRating",
+    "schema": {
+      "@context": "https://schema.org/",
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "156",
+      "bestRating": 5,
+      "worstRating": 1,
+      "itemReviewed": {
+        "@type": "Service",
+        "name": "Usuwanie opinii z Aleo",
+        "url": "https://wizaro.pl/jak-usunac-opinie-z-aleo",
+        "@id": "https://wizaro.pl/jak-usunac-opinie-z-aleo",
+        "image": "https://wizaro.pl/images/wizaro-logo.png",
+        "serviceType": "Professional Service",
+        "provider": {
+          "@type": "Organization",
+          "name": "Wizaro"
+        }
+      }
+    }
+  },
+  {
+    "type": "BreadcrumbList",
+    "schema": {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Strona główna",
+          "item": "https://wizaro.pl"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Usuwanie opinii",
+          "item": "https://wizaro.pl/usuwanie-opinii"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Aleo",
+          "item": "https://wizaro.pl/jak-usunac-opinie-z-aleo"
+        }
+      ]
+    }
+  },
+  {
+    "type": "FAQPage",
+    "schema": {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Jak długo trwa usuwanie opinii z Aleo?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Proces usuwania opinii z Aleo może trwać od kilku dni do kilku tygodni, w zależności od typu opinii i argumentów prawnych."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy można usunąć wszystkie dane firmy z Aleo?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Tak, możemy usunąć kompletny profil firmy z Aleo, włączając w to wszystkie dane firmowe, opinie i oceny."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Ile kosztuje usuwanie opinii z Aleo?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Koszt zależy od liczby opinii i złożoności sprawy. Oferujemy bezpłatną konsultację i płatność tylko za rezultat."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Czy usuwanie opinii z Aleo jest legalne?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Tak, usuwanie fałszywych lub krzywdzących opinii jest legalne i zgodne z polskim prawem oraz RODO."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Jak chronić firmę przed negatywnymi opiniami w Aleo?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Najlepszą ochroną jest aktywne zarządzanie profilem, budowanie pozytywnej reputacji i szybka reakcja na problemy."
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "LocalBusiness",
+    "schema": {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "Wizaro - Usuwanie Opinii z Aleo",
+      "description": "Profesjonalne usuwanie negatywnych opinii i profili firm z platformy Aleo. Skuteczne metody, zgodność z prawem.",
+      "url": "https://wizaro.pl",
+      "telephone": "+48792861513",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "",
+        "addressLocality": "Polska",
+        "addressRegion": "Polska",
+        "postalCode": "",
+        "addressCountry": "PL"
+      },
+      "serviceArea": {
+        "@type": "Country",
+        "name": "Poland"
+      },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Usługi ochrony wizerunku online",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Usuwanie opinii z Aleo"
+            },
+            "price": "500",
+            "priceCurrency": "PLN",
+            "priceValidUntil": "2025-12-31"
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Usuwanie profili firm"
+            },
+            "price": "500",
+            "priceCurrency": "PLN",
+            "priceValidUntil": "2025-12-31"
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Zgodność z RODO"
+            },
+            "price": "500",
+            "priceCurrency": "PLN",
+            "priceValidUntil": "2025-12-31"
+          }
+        ]
+      },
+      "areaServed": {
+        "@type": "Country",
+        "name": "Poland"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+48792861513",
+        "contactType": "customer service",
+        "availableLanguage": "Polish"
+      }
+    }
+  },
+  {
+    "type": "Review",
+    "number": 1,
+    "schema": {
+      "@context": "https://schema.org/",
+      "@type": "Review",
+      "author": {
+        "@type": "Person",
+        "name": "Anna K."
+      },
+      "reviewRating": {
+        "@type": "Rating",
+        "ratingValue": 5,
+        "bestRating": 5,
+        "worstRating": 1
+      },
+      "reviewBody": "Wizaro skutecznie usunęło wszystkie negatywne opinie z Aleo. Profesjonalna obsługa i szybki rezultat. Polecam!",
+      "datePublished": "2025-08-05",
+      "itemReviewed": {
+        "@type": "Organization",
+        "name": "Usuwanie opinii z Aleo - Wizaro",
+        "url": "https://wizaro.pl/jak-usunac-opinie-z-aleo",
+        "@id": "https://wizaro.pl/jak-usunac-opinie-z-aleo",
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "PL"
+        }
+      }
+    }
+  },
+  {
+    "type": "Review",
+    "number": 2,
+    "schema": {
+      "@context": "https://schema.org/",
+      "@type": "Review",
+      "author": {
+        "@type": "Person",
+        "name": "Marek P."
+      },
+      "reviewRating": {
+        "@type": "Rating",
+        "ratingValue": 5,
+        "bestRating": 5,
+        "worstRating": 1
+      },
+      "reviewBody": "Dzięki Wizaro udało się usunąć fałszywy profil firmy z Aleo. Bardzo szybko i skutecznie. Warto skorzystać z ich usług.",
+      "datePublished": "2025-08-03",
+      "itemReviewed": {
+        "@type": "Organization",
+        "name": "Usuwanie opinii z Aleo - Wizaro",
+        "url": "https://wizaro.pl/jak-usunac-opinie-z-aleo",
+        "@id": "https://wizaro.pl/jak-usunac-opinie-z-aleo",
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "PL"
+        }
+      }
+    }
+  },
+  {
+    "type": "Review",
+    "number": 3,
+    "schema": {
+      "@context": "https://schema.org/",
+      "@type": "Review",
+      "author": {
+        "@type": "Person",
+        "name": "Katarzyna S."
+      },
+      "reviewRating": {
+        "@type": "Rating",
+        "ratingValue": 5,
+        "bestRating": 5,
+        "worstRating": 1
+      },
+      "reviewBody": "Usunięcie negatywnych opinii z Aleo przebiegło bez problemów. Wizaro dotrzymało wszystkich obietnic. Bardzo profesjonalne podejście.",
+      "datePublished": "2025-08-01",
+      "itemReviewed": {
+        "@type": "Organization",
+        "name": "Usuwanie opinii z Aleo - Wizaro",
+        "url": "https://wizaro.pl/jak-usunac-opinie-z-aleo",
+        "@id": "https://wizaro.pl/jak-usunac-opinie-z-aleo",
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "PL"
+        }
+      }
+    }
+  },
+  {
+    "type": "Review",
+    "number": 4,
+    "schema": {
+      "@context": "https://schema.org/",
+      "@type": "Review",
+      "author": {
+        "@type": "Person",
+        "name": "Tomasz W."
+      },
+      "reviewRating": {
+        "@type": "Rating",
+        "ratingValue": 4,
+        "bestRating": 5,
+        "worstRating": 1
+      },
+      "reviewBody": "Kompleksowe usuwanie profilu firmy z Aleo. Wizaro załatwiło wszystko zgodnie z RODO. Polecam każdemu przedsiębiorcy.",
+      "datePublished": "2025-07-29",
+      "itemReviewed": {
+        "@type": "Organization",
+        "name": "Usuwanie opinii z Aleo - Wizaro",
+        "url": "https://wizaro.pl/jak-usunac-opinie-z-aleo",
+        "@id": "https://wizaro.pl/jak-usunac-opinie-z-aleo",
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "PL"
+        }
+      }
+    }
+  }
+]

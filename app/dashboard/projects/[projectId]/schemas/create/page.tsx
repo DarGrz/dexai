@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react'
 
-type SchemaType = 'LocalBusiness' | 'Product' | 'FAQPage' | 'Review' | 'Article' | 'BreadcrumbList' | 'WebPage' | 'Service' | 'OpenGraph'
+type SchemaType = 'LocalBusiness' | 'Product' | 'FAQPage' | 'Review' | 'Article' | 'BreadcrumbList' | 'WebPage' | 'Service' | 'OpenGraph' | 'AggregateRating'
 
 export default function CreateSchemaPage() {
   const params = useParams()
@@ -30,9 +30,6 @@ export default function CreateSchemaPage() {
     email: '',
     priceRange: '',
     areaServed: '',
-    includeRating: false,
-    ratingValue: '5.0',
-    reviewCount: '10',
     openingHours: [
       { day: 'Monday', opens: '09:00', closes: '17:00', closed: false },
       { day: 'Tuesday', opens: '09:00', closes: '17:00', closed: false },
@@ -101,6 +98,16 @@ export default function CreateSchemaPage() {
     questions: [
       { question: '', answer: '' }
     ],
+  })
+
+  // AggregateRating
+  const [aggregateRatingData, setAggregateRatingData] = useState({
+    itemType: 'Organization',
+    itemName: '',
+    ratingValue: '5.0',
+    bestRating: '5',
+    worstRating: '1',
+    reviewCount: '10',
   })
 
   // OpenGraph
@@ -210,14 +217,6 @@ export default function CreateSchemaPage() {
             email: localBusinessData.email,
             priceRange: localBusinessData.priceRange,
             areaServed: localBusinessData.areaServed ? localBusinessData.areaServed.split(',').map(s => s.trim()).filter(s => s) : undefined,
-            ...(localBusinessData.includeRating && {
-              aggregateRating: {
-                '@type': 'AggregateRating',
-                ratingValue: localBusinessData.ratingValue,
-                bestRating: '5',
-                reviewCount: localBusinessData.reviewCount,
-              }
-            }),
             openingHoursSpecification: openingHoursSpec,
           }
         })
@@ -376,6 +375,24 @@ export default function CreateSchemaPage() {
         })
       }
 
+      if (selectedSchemas.has('AggregateRating')) {
+        schemas.push({
+          type: 'AggregateRating',
+          json: {
+            '@context': 'https://schema.org',
+            '@type': 'AggregateRating',
+            ratingValue: aggregateRatingData.ratingValue,
+            bestRating: aggregateRatingData.bestRating,
+            worstRating: aggregateRatingData.worstRating,
+            reviewCount: aggregateRatingData.reviewCount,
+            itemReviewed: {
+              '@type': aggregateRatingData.itemType,
+              name: aggregateRatingData.itemName,
+            }
+          }
+        })
+      }
+
       // Insert all schemas
       for (const schema of schemas) {
         await supabase.from('schemas').insert({
@@ -418,7 +435,7 @@ export default function CreateSchemaPage() {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Wybierz typy schematów</h2>
           <div className="space-y-3">
-            {(['LocalBusiness', 'Review', 'Product', 'Service', 'FAQPage', 'Article', 'BreadcrumbList', 'WebPage', 'OpenGraph'] as SchemaType[]).map(type => (
+            {(['LocalBusiness', 'Review', 'Product', 'Service', 'FAQPage', 'Article', 'BreadcrumbList', 'WebPage', 'AggregateRating', 'OpenGraph'] as SchemaType[]).map(type => (
               <label key={type} className="flex items-center gap-3 p-3 border-2 border-gray-200 rounded-lg hover:border-indigo-300 cursor-pointer transition-colors">
                 <input
                   type="checkbox"
@@ -429,6 +446,7 @@ export default function CreateSchemaPage() {
                 <div className="flex-1">
                   <div className="font-medium text-gray-900">{type}</div>
                   {type === 'OpenGraph' && <div className="text-xs text-gray-500">Meta tagi dla social media</div>}
+                  {type === 'AggregateRating' && <div className="text-xs text-gray-500">Łączna ocena dla usługi/produktu</div>}
                 </div>
               </label>
             ))}
@@ -454,37 +472,6 @@ export default function CreateSchemaPage() {
               <input type="text" placeholder="Zakres cenowy (np. $$)" value={localBusinessData.priceRange} onChange={(e) => setLocalBusinessData({ ...localBusinessData, priceRange: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
               <textarea placeholder="Obszar świadczenia usług - miasta/regiony oddzielone przecinkami (np. Warszawa, Praga, Mokotów)" value={localBusinessData.areaServed} onChange={(e) => setLocalBusinessData({ ...localBusinessData, areaServed: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" rows={2} />
               
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <label className="flex items-center gap-2 mb-4">
-                  <input
-                    type="checkbox"
-                    checked={localBusinessData.includeRating}
-                    onChange={(e) => setLocalBusinessData({ ...localBusinessData, includeRating: e.target.checked })}
-                    className="w-4 h-4 text-indigo-600 rounded"
-                  />
-                  <span className="font-medium text-gray-900">Dodaj łączną ocenę (AggregateRating)</span>
-                </label>
-                {localBusinessData.includeRating && (
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    <input
-                      type="number"
-                      step="0.1"
-                      placeholder="Średnia ocena (np. 5.0)"
-                      value={localBusinessData.ratingValue}
-                      onChange={(e) => setLocalBusinessData({ ...localBusinessData, ratingValue: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    />
-                    <input
-                      type="number"
-                      placeholder="Liczba ocen"
-                      value={localBusinessData.reviewCount}
-                      onChange={(e) => setLocalBusinessData({ ...localBusinessData, reviewCount: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    />
-                  </div>
-                )}
-              </div>
-
               <div className="mt-4 pt-4 border-t border-gray-200">
                 <h3 className="font-medium text-gray-900 mb-3">Godziny otwarcia</h3>
                 <div className="space-y-2">
@@ -742,6 +729,45 @@ export default function CreateSchemaPage() {
                 <textarea placeholder="Odpowiedź" value={q.answer} onChange={(e) => { const newQ = [...faqData.questions]; newQ[idx].answer = e.target.value; setFaqData({ questions: newQ }) }} className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" rows={2} />
               </div>
             ))}
+          </div>
+        )}
+
+        {/* AggregateRating Form */}
+        {selectedSchemas.has('AggregateRating') && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">AggregateRating - Łączna ocena</h2>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Typ ocenianego obiektu</label>
+                  <select value={aggregateRatingData.itemType} onChange={(e) => setAggregateRatingData({ ...aggregateRatingData, itemType: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    <option value="Organization">Organizacja</option>
+                    <option value="LocalBusiness">Firma lokalna</option>
+                    <option value="Product">Produkt</option>
+                    <option value="Service">Usługa</option>
+                  </select>
+                </div>
+                <input type="text" required placeholder="Nazwa ocenianego obiektu *" value={aggregateRatingData.itemName} onChange={(e) => setAggregateRatingData({ ...aggregateRatingData, itemName: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Średnia ocena</label>
+                  <input type="number" step="0.1" min="0" placeholder="np. 4.8" value={aggregateRatingData.ratingValue} onChange={(e) => setAggregateRatingData({ ...aggregateRatingData, ratingValue: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Najlepsza ocena</label>
+                  <input type="number" placeholder="np. 5" value={aggregateRatingData.bestRating} onChange={(e) => setAggregateRatingData({ ...aggregateRatingData, bestRating: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Najgorsza ocena</label>
+                  <input type="number" placeholder="np. 1" value={aggregateRatingData.worstRating} onChange={(e) => setAggregateRatingData({ ...aggregateRatingData, worstRating: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Liczba ocen</label>
+                <input type="number" min="1" placeholder="np. 127" value={aggregateRatingData.reviewCount} onChange={(e) => setAggregateRatingData({ ...aggregateRatingData, reviewCount: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              </div>
+            </div>
           </div>
         )}
 

@@ -41,39 +41,39 @@ export async function GET(request: NextRequest) {
   }
 
   // Generate HTML with JSON-LD scripts and Open Graph meta tags
-  const htmlParts = schemas
-    .map(schema => {
-      // If it's an OpenGraph schema, generate meta tags
-      if (schema.type === 'OpenGraph') {
-        const og = schema.json
-        const metaTags: string[] = []
-        
-        // Open Graph tags
-        if (og.og_title) metaTags.push(`<meta property="og:title" content="${escapeHtml(og.og_title)}" />`)
-        if (og.og_description) metaTags.push(`<meta property="og:description" content="${escapeHtml(og.og_description)}" />`)
-        if (og.og_image) metaTags.push(`<meta property="og:image" content="${escapeHtml(og.og_image)}" />`)
-        if (og.og_url) metaTags.push(`<meta property="og:url" content="${escapeHtml(og.og_url)}" />`)
-        if (og.og_type) metaTags.push(`<meta property="og:type" content="${escapeHtml(og.og_type)}" />`)
-        if (og.og_site_name) metaTags.push(`<meta property="og:site_name" content="${escapeHtml(og.og_site_name)}" />`)
-        if (og.og_locale) metaTags.push(`<meta property="og:locale" content="${escapeHtml(og.og_locale)}" />`)
-        
-        // Twitter Card tags
-        if (og.twitter_card) metaTags.push(`<meta name="twitter:card" content="${escapeHtml(og.twitter_card)}" />`)
-        if (og.twitter_title) metaTags.push(`<meta name="twitter:title" content="${escapeHtml(og.twitter_title)}" />`)
-        if (og.twitter_description) metaTags.push(`<meta name="twitter:description" content="${escapeHtml(og.twitter_description)}" />`)
-        if (og.twitter_image) metaTags.push(`<meta name="twitter:image" content="${escapeHtml(og.twitter_image)}" />`)
-        if (og.twitter_site) metaTags.push(`<meta name="twitter:site" content="${escapeHtml(og.twitter_site)}" />`)
-        
-        return metaTags.join('\n')
-      } else {
-        // Regular JSON-LD schema
-        const jsonString = JSON.stringify(schema.json, null, 2)
-        return `<script type="application/ld+json">\n${jsonString}\n</script>`
-      }
-    })
-    .join('\n')
+  const htmlParts: string[] = []
+  
+  schemas.forEach(schema => {
+    // If it's an OpenGraph schema, generate meta tags
+    if (schema.type === 'OpenGraph') {
+      const og = schema.json
+      const metaTags: string[] = []
+      
+      // Open Graph tags
+      if (og.og_title) metaTags.push(`<meta property="og:title" content="${escapeHtml(og.og_title)}" />`)
+      if (og.og_description) metaTags.push(`<meta property="og:description" content="${escapeHtml(og.og_description)}" />`)
+      if (og.og_image) metaTags.push(`<meta property="og:image" content="${escapeHtml(og.og_image)}" />`)
+      if (og.og_url) metaTags.push(`<meta property="og:url" content="${escapeHtml(og.og_url)}" />`)
+      if (og.og_type) metaTags.push(`<meta property="og:type" content="${escapeHtml(og.og_type)}" />`)
+      if (og.og_site_name) metaTags.push(`<meta property="og:site_name" content="${escapeHtml(og.og_site_name)}" />`)
+      if (og.og_locale) metaTags.push(`<meta property="og:locale" content="${escapeHtml(og.og_locale)}" />`)
+      
+      // Twitter Card tags
+      if (og.twitter_card) metaTags.push(`<meta name="twitter:card" content="${escapeHtml(og.twitter_card)}" />`)
+      if (og.twitter_title) metaTags.push(`<meta name="twitter:title" content="${escapeHtml(og.twitter_title)}" />`)
+      if (og.twitter_description) metaTags.push(`<meta name="twitter:description" content="${escapeHtml(og.twitter_description)}" />`)
+      if (og.twitter_image) metaTags.push(`<meta name="twitter:image" content="${escapeHtml(og.twitter_image)}" />`)
+      if (og.twitter_site) metaTags.push(`<meta name="twitter:site" content="${escapeHtml(og.twitter_site)}" />`)
+      
+      htmlParts.push(metaTags.join('\n'))
+    } else {
+      // Regular JSON-LD schema - each schema gets its own <script> tag
+      const jsonString = JSON.stringify(schema.json, null, 2)
+      htmlParts.push(`<script type="application/ld+json">\n${jsonString}\n</script>`)
+    }
+  })
 
-  return new NextResponse(htmlParts, {
+  return new NextResponse(htmlParts.join('\n'), {
     headers: {
       'Content-Type': 'text/html',
       'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
