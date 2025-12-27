@@ -92,6 +92,86 @@ export default function BusinessProfileForm({ projectId, existingProfile }: Busi
         homePageId = newPage?.id
       }
 
+      // Create default schemas for new profiles (Organization + LocalBusiness + Product for stars)
+      if (!existingProfile && homePageId) {
+        // Create Organization schema (for AI Overviews)
+        const organizationSchema = {
+          '@context': 'https://schema.org',
+          '@type': 'Organization',
+          name: formData.business_name,
+          description: formData.description,
+          telephone: formData.phone,
+          email: formData.email,
+          url: formData.website,
+          address: formData.street_address ? {
+            '@type': 'PostalAddress',
+            streetAddress: formData.street_address,
+            addressLocality: formData.address_locality,
+            addressRegion: formData.address_region,
+            postalCode: formData.postal_code,
+            addressCountry: formData.address_country || 'PL',
+          } : undefined,
+        }
+
+        // Create LocalBusiness schema (for Google Maps)
+        const localBusinessSchema = {
+          '@context': 'https://schema.org',
+          '@type': 'LocalBusiness',
+          name: formData.business_name,
+          description: formData.description,
+          telephone: formData.phone,
+          email: formData.email,
+          url: formData.website,
+          priceRange: formData.price_range,
+          address: formData.street_address ? {
+            '@type': 'PostalAddress',
+            streetAddress: formData.street_address,
+            addressLocality: formData.address_locality,
+            addressRegion: formData.address_region,
+            postalCode: formData.postal_code,
+            addressCountry: formData.address_country || 'PL',
+          } : undefined,
+        }
+
+        // Create Product schema (for star ratings in Google Search)
+        const productSchema = {
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: formData.business_name,
+          description: formData.description,
+          brand: {
+            '@type': 'Brand',
+            name: formData.business_name,
+          },
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: 5.0,
+            reviewCount: 10,
+          }
+        }
+
+        await supabase.from('schemas').insert([
+          {
+            page_id: homePageId,
+            type: 'Organization',
+            json: organizationSchema,
+            enabled: false,
+          },
+          {
+            page_id: homePageId,
+            type: 'LocalBusiness',
+            json: localBusinessSchema,
+            enabled: false,
+          },
+          {
+            page_id: homePageId,
+            type: 'Product',
+            json: productSchema,
+            enabled: false,
+          }
+        ])
+      }
+
       // Redirect to home page to add information
       router.push(`/dashboard/projects/${projectId}/pages/${homePageId}`)
     } catch (err: any) {

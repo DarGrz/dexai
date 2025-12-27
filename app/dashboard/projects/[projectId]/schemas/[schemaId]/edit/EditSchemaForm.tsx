@@ -402,14 +402,6 @@ export function EditSchemaForm({
           },
           areaServed: data.areaServed,
         }
-        
-        if (data.includeRating) {
-          updatedJsonData.aggregateRating = {
-            '@type': 'AggregateRating',
-            ratingValue: data.ratingValue,
-            reviewCount: data.reviewCount,
-          }
-        }
       } else if (schema.type === 'Product') {
         const data = formData as ProductFormData
         updatedJsonData = {

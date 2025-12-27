@@ -250,17 +250,17 @@ echo $schema_html;
                       <Link
                         key={page.id}
                         href={`/dashboard/projects/${projectId}/pages/${page.id}`}
-                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group cursor-pointer"
+                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group cursor-pointer gap-3"
                       >
-                        <div className="flex items-center gap-4 flex-1">
+                        <div className="flex items-center gap-4 flex-1 min-w-0">
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-mono text-sm text-gray-900">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              <span className="font-mono text-sm text-gray-900 break-all">
                                 {project.domain}{page.url_path}
                               </span>
-                              <ExternalLink className="w-3 h-3 text-gray-400" />
+                              <ExternalLink className="w-3 h-3 text-gray-400 flex-shrink-0" />
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
                               <span className="text-xs text-gray-500">
                                 {page.name}
                               </span>
@@ -270,7 +270,7 @@ echo $schema_html;
                             </div>
                           </div>
                         </div>
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 px-3 py-1.5 text-sm text-emerald-600 hover:text-emerald-700 font-medium">
+                        <div className="sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-center gap-1 px-3 py-1.5 text-sm text-emerald-600 hover:text-emerald-700 font-medium self-start sm:self-auto">
                           <Settings className="w-4 h-4" />
                           Zarządzaj
                         </div>

@@ -3,7 +3,7 @@ export const SCHEMA_TYPE_LABELS: Record<string, string> = {
   // Main types
   'LocalBusiness': 'Informacje o firmie',
   'Organization': 'Organizacja',
-  'Product': 'Produkt',
+  'Product': 'Oferta',
   'Service': 'Szczegóły oferowanych usług',
   
   // Business types
