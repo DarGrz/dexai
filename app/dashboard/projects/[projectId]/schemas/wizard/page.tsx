@@ -41,6 +41,7 @@ export default function SchemaWizardPage() {
   const [selectedSchemas, setSelectedSchemas] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [businessProfile, setBusinessProfile] = useState<any>(null)
 
   // Dane formularzy
   const [businessData, setBusinessData] = useState({
@@ -56,6 +57,43 @@ export default function SchemaWizardPage() {
     priceRange: '',
     areaServed: '',
   })
+
+  // Fetch business profile and auto-fill
+  useEffect(() => {
+    async function fetchBusinessProfile() {
+      const supabase = createClient()
+      const { data } = await supabase
+        .from('business_profiles')
+        .select('*')
+        .eq('project_id', projectId)
+        .single()
+
+      if (data) {
+        setBusinessProfile(data)
+        // Auto-fill business data
+        setBusinessData(prev => ({
+          ...prev,
+          name: data.business_name || prev.name,
+          description: data.description || prev.description,
+          streetAddress: data.street_address || prev.streetAddress,
+          addressLocality: data.address_locality || prev.addressLocality,
+          postalCode: data.postal_code || prev.postalCode,
+          telephone: data.phone || prev.telephone,
+          email: data.email || prev.email,
+          website: data.website || prev.website,
+          priceRange: data.price_range || prev.priceRange,
+        }))
+
+        // Auto-fill contact data
+        setContactData(prev => ({
+          ...prev,
+          telephone: data.phone || prev.telephone,
+          email: data.email || prev.email,
+        }))
+      }
+    }
+    fetchBusinessProfile()
+  }, [projectId])
 
   const [hoursData, setHoursData] = useState([
     { day: 'Poniedziałek', opens: '09:00', closes: '17:00', closed: false },

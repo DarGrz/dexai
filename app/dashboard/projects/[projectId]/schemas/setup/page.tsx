@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { INDUSTRIES, type Industry } from '@/lib/constants'
+import { INDUSTRIES, PRICING, type Industry } from '@/lib/constants'
+import { createClient } from '@/lib/supabase/client'
 import { 
   Wrench, Heart, Hotel, Car, Landmark, ShoppingCart, UtensilsCrossed, FileText,
   Home, GraduationCap, Scale, Dumbbell, Scissors, Palette, Monitor
@@ -120,23 +121,94 @@ export default function SetupSchemasPage() {
   const params = useParams()
   const projectId = params.projectId as string
   const [selectedIndustry, setSelectedIndustry] = useState<Industry | null>(null)
+  const [schemaCount, setSchemaCount] = useState(0)
+  const [hasBusinessProfile, setHasBusinessProfile] = useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+    async function fetchData() {
+      const supabase = createClient()
+      
+      // Check schema count
+      const { data: schemas } = await supabase
+        .from('schemas')
+        .select('id')
+        .eq('project_id', projectId)
+      
+      setSchemaCount(schemas?.length || 0)
+
+      // Check if business profile exists
+      const { data: profile } = await supabase
+        .from('business_profiles')
+        .select('id')
+        .eq('project_id', projectId)
+        .single()
+      
+      setHasBusinessProfile(!!profile)
+    }
+    fetchData()
+  }, [projectId])
 
   const handleContinue = () => {
     if (selectedIndustry) {
-      router.push(`/dashboard/projects/${projectId}/schemas/wizard?industry=${selectedIndustry}`)
+      // Check if user needs to create business profile first
+      if (!hasBusinessProfile) {
+        router.push(`/dashboard/projects/${projectId}/business-profile`)
+      } else if (schemaCount >= PRICING.MAX_SCHEMAS_PER_PROJECT) {
+        alert(`Osiągnięto limit ${PRICING.MAX_SCHEMAS_PER_PROJECT} sekcji na domenę. Usuń niepotrzebne sekcje aby dodać nowe.`)
+      } else {
+        router.push(`/dashboard/projects/${projectId}/schemas/wizard?industry=${selectedIndustry}`)
+      }
     }
   }
 
   return (
     <div className="max-w-6xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Kreator profilu firmy
-        </h1>
-        <p className="text-gray-600">
-          Wybierz swoją branżę, a dopasujemy odpowiednie informacje do Twojej działalności
-        </p>
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Kreator profilu firmy
+            </h1>
+            <p className="text-gray-600">
+              Wybierz swoją branżę, a dopasujemy odpowiednie informacje do Twojej działalności
+            </p>
+          </div>
+          <div className="text-right">
+            <div className="text-sm text-gray-500">Sekcje:</div>
+            <div className="text-2xl font-bold text-emerald-600">
+              {schemaCount}/{PRICING.MAX_SCHEMAS_PER_PROJECT}
+            </div>
+          </div>
+        </div>
+        
+        {!hasBusinessProfile && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <div className="flex items-start gap-3">
+              <div className="text-blue-600 text-xl">💡</div>
+              <div>
+                <h3 className="font-semibold text-blue-900 mb-1">Najpierw uzupełnij profil firmy</h3>
+                <p className="text-sm text-blue-800">
+                  Wprowadź podstawowe dane swojej firmy raz, a będą one automatycznie wykorzystywane przy tworzeniu informacji dla różnych podstron.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {schemaCount >= PRICING.MAX_SCHEMAS_PER_PROJECT && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <div className="flex items-start gap-3">
+              <div className="text-red-600 text-xl">⚠️</div>
+              <div>
+                <h3 className="font-semibold text-red-900 mb-1">Osiągnięto limit sekcji</h3>
+                <p className="text-sm text-red-800">
+                  Masz już {PRICING.MAX_SCHEMAS_PER_PROJECT} sekcji. Usuń niepotrzebne aby dodać nowe.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
