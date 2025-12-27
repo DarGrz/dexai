@@ -1,5 +1,6 @@
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { checkRateLimit, getClientIP, RATE_LIMITS } from '@/lib/rate-limit'
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
@@ -8,6 +9,38 @@ export async function GET(request: NextRequest) {
   if (!projectId) {
     return new NextResponse('<!-- Brak parametru projectId -->', {
       headers: { 'Content-Type': 'text/html' },
+    })
+  }
+
+  // Rate limiting - IP based
+  const clientIP = getClientIP(request)
+  const ipLimitPerMin = checkRateLimit(clientIP, RATE_LIMITS.PUBLIC_PER_MINUTE.limit, RATE_LIMITS.PUBLIC_PER_MINUTE.window)
+  
+  if (!ipLimitPerMin.allowed) {
+    return new NextResponse('<!-- Rate limit exceeded -->', {
+      status: 429,
+      headers: {
+        'Content-Type': 'text/html',
+        'X-RateLimit-Limit': String(RATE_LIMITS.PUBLIC_PER_MINUTE.limit),
+        'X-RateLimit-Remaining': '0',
+        'X-RateLimit-Reset': String(Math.ceil(ipLimitPerMin.resetAt / 1000)),
+        'Retry-After': String(Math.ceil((ipLimitPerMin.resetAt - Date.now()) / 1000)),
+      }
+    })
+  }
+
+  // Rate limiting - Project based
+  const projectLimit = checkRateLimit(projectId, RATE_LIMITS.PROJECT_PER_DAY.limit, RATE_LIMITS.PROJECT_PER_DAY.window, 'project')
+  
+  if (!projectLimit.allowed) {
+    return new NextResponse('<!-- Project rate limit exceeded -->', {
+      status: 429,
+      headers: {
+        'Content-Type': 'text/html',
+        'X-RateLimit-Limit': String(RATE_LIMITS.PROJECT_PER_DAY.limit),
+        'X-RateLimit-Remaining': '0',
+        'X-RateLimit-Reset': String(Math.ceil(projectLimit.resetAt / 1000)),
+      }
     })
   }
 
@@ -78,6 +111,9 @@ export async function GET(request: NextRequest) {
       'Content-Type': 'text/html',
       'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
       'Access-Control-Allow-Origin': '*',
+      'X-RateLimit-Limit': String(RATE_LIMITS.PUBLIC_PER_MINUTE.limit),
+      'X-RateLimit-Remaining': String(ipLimitPerMin.remaining),
+      'X-RateLimit-Reset': String(Math.ceil(ipLimitPerMin.resetAt / 1000)),
     },
   })
 }
