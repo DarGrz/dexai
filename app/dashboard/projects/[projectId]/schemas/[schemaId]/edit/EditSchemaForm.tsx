@@ -141,9 +141,19 @@ export function EditSchemaForm({
       const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
       
       const openingHours = daysOfWeek.map(day => {
-        const existing = existingHours.find((h: any) => 
-          Array.isArray(h.dayOfWeek) ? h.dayOfWeek.includes(day) : h.dayOfWeek === day
-        )
+        const existing = existingHours.find((h: any) => {
+          const dayValue = h.dayOfWeek
+          // Obsługa formatu http://schema.org/Monday
+          if (typeof dayValue === 'string') {
+            const normalizedDay = dayValue.replace('http://schema.org/', '')
+            return normalizedDay === day
+          }
+          // Obsługa tablicy
+          if (Array.isArray(dayValue)) {
+            return dayValue.some((d: string) => d.replace('http://schema.org/', '') === day)
+          }
+          return dayValue === day
+        })
         return {
           day,
           opens: existing?.opens || '09:00',

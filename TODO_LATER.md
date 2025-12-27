@@ -135,4 +135,300 @@ Plugin WP który automatycznie:
 
 ---
 
+## 📧 Email Notifications - System powiadomień mailowych
+
+### Koncepcja
+Automatyczne maile dla użytkowników z informacjami o subskrypcji, przypomnieniami i notyfikacjami.
+
+### Rodzaje maili
+
+**1. Welcome Email**
+- Wysyłka: Po pierwszym zalogowaniu
+- Zawartość: Przewodnik quick start, link do dokumentacji, CTA "Utwórz pierwszy projekt"
+
+**2. Trial Ending (dla planów z trial)**
+- Wysyłka: 3 dni przed końcem trial
+- Zawartość: Przypomnienie o końcu okresu próbnego, link do płatności, podsumowanie użycia
+
+**3. Payment Notifications**
+- Wysyłka: Po udanym/nieudanym payment
+- Zawartość:
+  - ✅ Sukces: Potwierdzenie płatności, faktura, następna data
+  - ❌ Błąd: Instrukcje aktualizacji metody płatności, retry info
+
+**4. Subscription Changes**
+- Wysyłka: Po upgrade/downgrade/cancel
+- Zawartość: Potwierdzenie zmian, nowe limity, data wejścia w życie
+
+**5. Monthly Summary (engagement email)**
+- Wysyłka: Pierwszy dzień miesiąca
+- Zawartość:
+  - Statystyki: ile razy schemas wyświetlone (z API analytics)
+  - Nowe features/updates
+  - Tips & tricks dla lepszego SEO
+
+**6. Inactive User Re-engagement**
+- Wysyłka: 14 dni bez logowania
+- Zawartość: "Tęsknimy za Tobą", nowe features, oferta pomocy
+
+**7. Invoice/Receipt Emails**
+- Wysyłka: Co miesiąc po płatności
+- Zawartość: Faktura VAT (integracja z Stripe Tax/InFakt)
+
+### Struktura bazy danych
+
+```sql
+-- Tabela email templates
+CREATE TABLE email_templates (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL UNIQUE, -- 'welcome', 'trial_ending', etc.
+  subject TEXT NOT NULL,
+  html_body TEXT NOT NULL,
+  text_body TEXT NOT NULL,
+  variables JSONB, -- {firstName}, {projectCount}, etc.
+  active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Log wysłanych maili
+CREATE TABLE email_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id),
+  template_name TEXT NOT NULL,
+  recipient_email TEXT NOT NULL,
+  status TEXT NOT NULL, -- 'sent', 'failed', 'bounced', 'opened', 'clicked'
+  provider_message_id TEXT,
+  error_message TEXT,
+  sent_at TIMESTAMPTZ DEFAULT NOW(),
+  opened_at TIMESTAMPTZ,
+  clicked_at TIMESTAMPTZ
+);
+
+-- User preferences
+ALTER TABLE profiles ADD COLUMN email_preferences JSONB DEFAULT '{
+  "marketing": true,
+  "product_updates": true,
+  "monthly_summary": true,
+  "billing": true
+}';
+```
+
+### Technologie
+
+**Email Provider (wybierz jeden):**
+
+1. **Resend.com** (polecane dla Next.js)
+   - 100 maili/dzień FREE
+   - 3,000/miesiąc = $20
+   - React Email support
+   - Prosty API
+
+2. **SendGrid**
+   - 100 maili/dzień FREE
+   - 50,000/miesiąc = $19.95
+   - Dobre analytics
+
+3. **Postmark**
+   - 100 maili/miesiąc FREE (tylko trial)
+   - 10,000/miesiąc = $15
+   - Najlepsze delivery rates
+
+**Email Templates:**
+- **React Email** - komponenty React do maili (https://react.email)
+- Preview w dev mode
+- TypeScript support
+
+### API Endpoint
+
+**POST `/api/emails/send`**
+```typescript
+{
+  userId: string;
+  template: 'welcome' | 'trial_ending' | 'payment_success';
+  variables: Record<string, any>;
+}
+```
+
+### UI w dashboardzie (Admin)
+
+```
+┌──────────────────────────────────────┐
+│ 📧 Email Preferences                 │
+├──────────────────────────────────────┤
+│ ☑ Marketing emails                   │
+│ ☑ Product updates                    │
+│ ☑ Monthly summary                    │
+│ ☑ Billing notifications              │
+│                                       │
+│ [Zapisz ustawienia]                  │
+└──────────────────────────────────────┘
+```
+
+### Implementacja (fazy)
+
+**Faza 1 (MVP):**
+- Welcome email (Resend)
+- Payment success/failed (Stripe webhooks)
+
+**Faza 2:**
+- Trial ending
+- Monthly summary
+- Invoice emails
+
+**Faza 3:**
+- Re-engagement campaigns
+- A/B testing templates
+- Advanced analytics (open rates, click rates)
+
+### Compliance (RODO/GDPR)
+- ✅ Unsubscribe link w każdym mailu
+- ✅ Email preferences w settings
+- ✅ Clear consent przy rejestracji
+- ✅ Data retention policy (usuń logi po 90 dni)
+
+### Koszty (przy Resend)
+- 0-3000 maili/m: $20
+- 10,000 użytkowników × 2 maile/m = 20,000 maili
+- Koszt: ~$40-60/miesiąc
+
+---
+
+## 💬 Live Chat Support
+
+### Koncepcja
+Widget live chat dla klientów DexAI + możliwie chat dla klientów klientów (white-label).
+
+### Opcje implementacji
+
+**1. Tawk.to (FREE, najprostsze)**
+- ✅ Darmowy forever
+- ✅ Widget gotowy
+- ✅ Mobile apps
+- ✅ Email notifications
+- ❌ Branding (logo Tawk)
+- ❌ Ograniczone customization
+
+**2. Crisp (freemium)**
+- ✅ FREE do 2 operatorów
+- ✅ Ładny UI
+- ✅ Chatbots
+- ✅ Knowledge base
+- 💰 $25/m per operator
+
+**3. Intercom (premium)**
+- ✅ Najlepszy UX
+- ✅ Automation & bots
+- ✅ Product tours
+- 💰 $74/m (DROGO)
+
+**4. Custom (własny chat)**
+- ✅ Pełna kontrola
+- ✅ White-label ready
+- ❌ Dużo pracy (WebSockets, real-time DB)
+- Stack: Supabase Realtime + React
+
+### Rekomendacja (dla startu)
+
+**Tawk.to dla MVP:**
+```html
+<!-- Dodać do layout.tsx -->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/{PROPERTY_ID}/default';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+```
+
+**Pozycjonowanie:**
+- Dashboard: Prawy dolny róg (standard)
+- Landing page: Prawy dolny róg
+- FAQ: "Potrzebujesz pomocy?" floating button
+
+### Workflow
+
+1. **Użytkownik klika chat widget**
+2. **Bot greeting:** "Cześć! 👋 W czym mogę pomóc?"
+3. **Quick replies:**
+   - "Problemy z integracją"
+   - "Pytanie o cennik"
+   - "Zgłoś błąd"
+   - "Inne"
+4. **Agent odpowiada** (lub automated responses dla FAQ)
+
+### Integracja z systemem
+
+```sql
+-- Link konwersacji do użytkownika
+ALTER TABLE profiles ADD COLUMN tawk_visitor_id TEXT;
+```
+
+**Przekazywanie danych do Tawk:**
+```javascript
+Tawk_API.setAttributes({
+  'name': user.name,
+  'email': user.email,
+  'plan': user.subscription.plan,
+  'userId': user.id
+}, function(error){});
+```
+
+### KPIs do monitorowania
+- Average response time
+- Customer satisfaction (CSAT)
+- Chat volume (ile chats/dzień)
+- Top questions → buduj FAQ/dokumentację
+
+### Przyszłość (własny chat)
+- Gdy będziesz mieć >500 użytkowników
+- Gdy chcesz white-label dla klientów klientów
+- Stack: Supabase Realtime + Presence + React
+- Koszt dev: ~40-80h pracy
+
+---
+
+## 🔔 In-App Notifications (Toast/Bell Icon)
+
+### Koncepcja
+Powiadomienia wewnątrz aplikacji (nie email).
+
+**Przykłady:**
+- "✅ Twoja subskrypcja została odnowiona"
+- "⚠️ Problem z płatnością - zaktualizuj kartę"
+- "🎉 Nowa funkcja: IndexNow teraz dostępne!"
+- "📊 Twoje schematy wyświetlone 1,234 razy w tym miesiącu"
+
+### UI Component
+- Bell icon w navbar (z badge count)
+- Dropdown lista powiadomień
+- Toast notifications dla ważnych
+
+### DB Schema
+```sql
+CREATE TABLE notifications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id),
+  type TEXT NOT NULL, -- 'info', 'success', 'warning', 'error'
+  title TEXT NOT NULL,
+  message TEXT NOT NULL,
+  action_url TEXT, -- Link do akcji
+  read BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_notifications_user ON notifications(user_id, created_at DESC);
+```
+
+### Stack
+- Supabase Realtime subscriptions
+- React Context/Zustand dla state
+- Sonner lub react-hot-toast dla toasts
+
+---
+
 _Ostatnia aktualizacja: 27 grudnia 2025_

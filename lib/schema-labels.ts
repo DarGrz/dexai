@@ -75,6 +75,7 @@ export const SCHEMA_TYPE_LABELS: Record<string, string> = {
   'OpeningHoursSpecification': 'Godziny otwarcia',
   'PostalAddress': 'Adres pocztowy',
   'Person': 'Osoba',
+  'HowTo': 'Instrukcja krok po kroku',
 }
 
 // Get Polish label for schema type, fallback to technical name
@@ -95,6 +96,7 @@ export const SCHEMA_TYPES_OPTIONS = [
   { value: 'Event', label: 'Wydarzenie', description: 'Wydarzenie, szkolenie, webinar' },
   { value: 'Course', label: 'Kurs', description: 'Kurs szkoleniowy, edukacyjny' },
   { value: 'Recipe', label: 'Przepis', description: 'Przepis kulinarny' },
+  { value: 'HowTo', label: 'Instrukcja', description: 'Przewodnik krok po kroku (jak zrobić)' },
   { value: 'VideoObject', label: 'Wideo', description: 'Film, materiał wideo' },
   { value: 'Review', label: 'Opinia', description: 'Pojedyncza opinia klienta' },
   { value: 'AggregateRating', label: 'Ocena', description: 'Średnia ocena z opinii' },

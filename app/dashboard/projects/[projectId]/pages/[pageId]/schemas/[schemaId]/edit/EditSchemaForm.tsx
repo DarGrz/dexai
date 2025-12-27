@@ -98,6 +98,17 @@ type FAQFormData = {
   }>
 }
 
+type HowToFormData = {
+  name: string
+  description: string
+  totalTime: string
+  steps: Array<{
+    name: string
+    text: string
+    url?: string
+  }>
+}
+
 type OpenGraphFormData = {
   og_title: string
   og_description: string
@@ -113,7 +124,7 @@ type OpenGraphFormData = {
   twitter_site: string
 }
 
-type FormData = LocalBusinessFormData | AggregateRatingFormData | ReviewFormData | ArticleFormData | BreadcrumbFormData | WebPageFormData | ServiceFormData | ProductFormData | FAQFormData | OpenGraphFormData
+type FormData = LocalBusinessFormData | AggregateRatingFormData | ReviewFormData | ArticleFormData | BreadcrumbFormData | WebPageFormData | ServiceFormData | ProductFormData | FAQFormData | HowToFormData | OpenGraphFormData
 
 export function EditSchemaForm({ 
   schema, 
@@ -143,9 +154,19 @@ export function EditSchemaForm({
       const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
       
       const openingHours = daysOfWeek.map(day => {
-        const existing = existingHours.find((h: any) => 
-          Array.isArray(h.dayOfWeek) ? h.dayOfWeek.includes(day) : h.dayOfWeek === day
-        )
+        const existing = existingHours.find((h: any) => {
+          const dayValue = h.dayOfWeek
+          // Obsługa formatu http://schema.org/Monday
+          if (typeof dayValue === 'string') {
+            const normalizedDay = dayValue.replace('http://schema.org/', '')
+            return normalizedDay === day
+          }
+          // Obsługa tablicy
+          if (Array.isArray(dayValue)) {
+            return dayValue.some((d: string) => d.replace('http://schema.org/', '') === day)
+          }
+          return dayValue === day
+        })
         return {
           day,
           opens: existing?.opens || '09:00',
@@ -231,6 +252,17 @@ export function EditSchemaForm({
           question: q.name || '',
           answer: q.acceptedAnswer?.text || '',
         })) || [{ question: '', answer: '' }]
+      }
+    } else if (schema.type === 'HowTo') {
+      return {
+        name: jsonData.name || '',
+        description: jsonData.description || '',
+        totalTime: jsonData.totalTime || '',
+        steps: jsonData.step?.map((s: any) => ({
+          name: s.name || '',
+          text: s.text || '',
+          url: s.url || '',
+        })) || [{ name: '', text: '', url: '' }]
       }
     } else if (schema.type === 'OpenGraph') {
       return {
@@ -435,6 +467,28 @@ export function EditSchemaForm({
             '@type': 'Question',
             name: q.question,
             acceptedAnswer: { '@type': 'Answer', text: q.answer }
+          }))
+        }
+      } else if (schema.type === 'HowTo') {
+        const data = formData as HowToFormData
+        updatedJsonData = {
+          '@context': 'https://schema.org',
+          '@type': 'HowTo',
+          name: data.name,
+          description: data.description,
+        }
+        
+        if (data.totalTime) {
+          updatedJsonData.totalTime = data.totalTime
+        }
+        
+        if (data.steps.length > 0) {
+          updatedJsonData.step = data.steps.filter(s => s.name && s.text).map((s, idx) => ({
+            '@type': 'HowToStep',
+            position: idx + 1,
+            name: s.name,
+            text: s.text,
+            url: s.url || undefined,
           }))
         }
       } else if (schema.type === 'OpenGraph') {
@@ -1169,6 +1223,121 @@ export function EditSchemaForm({
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
                     rows={2}
                   />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* HowTo Form */}
+          {schema.type === 'HowTo' && (
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-4">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Instrukcja krok po kroku</h2>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nazwa instrukcji</label>
+                <input
+                  type="text"
+                  placeholder="np. Jak wymienić olej w samochodzie"
+                  value={(formData as HowToFormData).name}
+                  onChange={(e) => setFormData({ ...(formData as HowToFormData), name: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Opis</label>
+                <textarea
+                  placeholder="Krótki opis instrukcji"
+                  value={(formData as HowToFormData).description}
+                  onChange={(e) => setFormData({ ...(formData as HowToFormData), description: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  rows={2}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Czas wykonania (opcjonalnie)</label>
+                <input
+                  type="text"
+                  placeholder="np. PT30M (30 minut) lub PT2H (2 godziny)"
+                  value={(formData as HowToFormData).totalTime}
+                  onChange={(e) => setFormData({ ...(formData as HowToFormData), totalTime: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+                <p className="text-xs text-gray-500 mt-1">Format ISO 8601: PT[liczba]M dla minut, PT[liczba]H dla godzin</p>
+              </div>
+
+              <div className="flex justify-between items-center mt-6 mb-3">
+                <h3 className="text-sm font-semibold text-gray-900">Kroki</h3>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const data = formData as HowToFormData
+                    setFormData({ ...data, steps: [...data.steps, { name: '', text: '', url: '' }] } as FormData)
+                  }}
+                  className="text-sm text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
+                >
+                  <Plus className="w-4 h-4" /> Dodaj krok
+                </button>
+              </div>
+
+              {(formData as HowToFormData).steps.map((step, idx) => (
+                <div key={idx} className="p-4 border border-gray-200 rounded-lg space-y-3">
+                  <div className="flex items-start gap-2">
+                    <div className="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-semibold text-sm">
+                      {idx + 1}
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <input
+                        type="text"
+                        placeholder="Nazwa kroku"
+                        value={step.name}
+                        onChange={(e) => {
+                          const data = formData as HowToFormData
+                          const newSteps = [...data.steps]
+                          newSteps[idx].name = e.target.value
+                          setFormData({ ...data, steps: newSteps } as FormData)
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                      />
+                      <textarea
+                        placeholder="Szczegółowy opis kroku"
+                        value={step.text}
+                        onChange={(e) => {
+                          const data = formData as HowToFormData
+                          const newSteps = [...data.steps]
+                          newSteps[idx].text = e.target.value
+                          setFormData({ ...data, steps: newSteps } as FormData)
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                        rows={2}
+                      />
+                      <input
+                        type="url"
+                        placeholder="Link do zdjęcia/wideo (opcjonalnie)"
+                        value={step.url || ''}
+                        onChange={(e) => {
+                          const data = formData as HowToFormData
+                          const newSteps = [...data.steps]
+                          newSteps[idx].url = e.target.value
+                          setFormData({ ...data, steps: newSteps } as FormData)
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                      />
+                    </div>
+                    {(formData as HowToFormData).steps.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const data = formData as HowToFormData
+                          setFormData({ ...data, steps: data.steps.filter((_, i) => i !== idx) } as FormData)
+                        }}
+                        className="text-red-600 hover:text-red-700 mt-2"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
