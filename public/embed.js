@@ -22,8 +22,11 @@
     apiUrl = apiUrl.replace('/api/schema', '/api/schema-html');
   }
   
+  // Get current page URL path (without domain)
+  var currentUrl = window.location.pathname;
+  
   // Fetch HTML with schemas and meta tags
-  fetch(apiUrl + '?projectId=' + projectId + '&_=' + Date.now())
+  fetch(apiUrl + '?projectId=' + projectId + '&url=' + encodeURIComponent(currentUrl) + '&_=' + Date.now())
     .then(function(response) {
       if (!response.ok) {
         throw new Error('HTTP error! status: ' + response.status);

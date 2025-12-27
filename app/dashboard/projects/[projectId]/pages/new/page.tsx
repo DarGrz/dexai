@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
 import NewPageForm from './NewPageForm'
-import { PRICING } from '@/lib/constants'
 
 export default async function NewPagePage({
   params,
@@ -28,15 +27,24 @@ export default async function NewPagePage({
     notFound()
   }
 
-  // Check schema count
-  const { data: schemas } = await supabase
-    .from('schemas')
+  // Fetch user profile with max pages limit
+  const { data: userProfile } = await supabase
+    .from('user_profiles')
+    .select('max_schemas_per_project')
+    .eq('id', user.id)
+    .single()
+
+  const maxPagesPerProject = userProfile?.max_schemas_per_project || 50
+
+  // Check page count
+  const { data: pages } = await supabase
+    .from('pages')
     .select('id')
     .eq('project_id', projectId)
 
-  const pageCount = schemas?.length || 0
+  const pageCount = pages?.length || 0
 
-  if (pageCount >= PRICING.MAX_SCHEMAS_PER_PROJECT) {
+  if (pageCount >= maxPagesPerProject) {
     redirect(`/dashboard/projects/${projectId}`)
   }
 
@@ -58,7 +66,7 @@ export default async function NewPagePage({
           Dodaj nową podstronę
         </h1>
         <p className="text-gray-600">
-          Podstrony: {pageCount}/{PRICING.MAX_SCHEMAS_PER_PROJECT}
+          Podstrony: {pageCount}/{maxPagesPerProject}
         </p>
       </div>
 

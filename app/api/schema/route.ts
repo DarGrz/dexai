@@ -61,11 +61,14 @@ export async function GET(request: NextRequest) {
     }
   )
 
-  // Fetch enabled schemas for this project
+  // Fetch enabled schemas for this project through pages
   const { data: schemas, error } = await supabase
     .from('schemas')
-    .select('*')
-    .eq('project_id', projectId)
+    .select(`
+      *,
+      page:pages!inner(project_id)
+    `)
+    .eq('page.project_id', projectId)
     .eq('enabled', true)
     .order('created_at', { ascending: false })
 

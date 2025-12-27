@@ -5,6 +5,7 @@ import { useRouter, useParams, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight, Check, Info, Plus, Trash2 } from 'lucide-react'
+import { getSchemaLabel } from '@/lib/schema-labels'
 
 // Typy schematów pogrupowane według branży
 const SCHEMA_GROUPS: Record<string, string[]> = {
@@ -403,7 +404,7 @@ export default function SchemaWizardPage() {
                       className="mt-1"
                     />
                     <div className="flex-1">
-                      <div className="font-medium text-gray-900">{schema}</div>
+                      <div className="font-medium text-gray-900">{getSchemaLabel(schema)}</div>
                       <div className="text-sm text-gray-600">Rekomendowane dla Twojej branży</div>
                     </div>
                   </label>
@@ -428,15 +429,7 @@ export default function SchemaWizardPage() {
                       className="mt-1"
                     />
                     <div className="flex-1">
-                      <div className="font-medium text-gray-900">{schema}</div>
-                      <div className="text-xs text-gray-600">
-                        {schema === 'AggregateRating' && 'Średnia ocena z wszystkich opinii'}
-                        {schema === 'Review' && 'Indywidualne opinie klientów'}
-                        {schema === 'FAQPage' && 'Najczęściej zadawane pytania'}
-                        {schema === 'ContactPoint' && 'Dane kontaktowe'}
-                        {schema === 'Service' && 'Szczegóły oferowanych usług'}
-                        {schema === 'OpeningHoursSpecification' && 'Godziny otwarcia'}
-                      </div>
+                      <div className="font-medium text-gray-900">{getSchemaLabel(schema)}</div>
                     </div>
                   </label>
                 ))}

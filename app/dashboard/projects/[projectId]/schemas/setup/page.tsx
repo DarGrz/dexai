@@ -123,12 +123,26 @@ export default function SetupSchemasPage() {
   const [selectedIndustry, setSelectedIndustry] = useState<Industry | null>(null)
   const [schemaCount, setSchemaCount] = useState(0)
   const [hasBusinessProfile, setHasBusinessProfile] = useState(false)
+  const [maxSchemasPerProject, setMaxSchemasPerProject] = useState(50)
   const router = useRouter()
 
   useEffect(() => {
     async function fetchData() {
       const supabase = createClient()
-      
+            // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      // Fetch user profile with max schemas limit
+      const { data: userProfile } = await supabase
+        .from('user_profiles')
+        .select('max_schemas_per_project')
+        .eq('id', user.id)
+        .single()
+
+      if (userProfile?.max_schemas_per_project) {
+        setMaxSchemasPerProject(userProfile.max_schemas_per_project)
+      }
       // Check schema count
       const { data: schemas } = await supabase
         .from('schemas')
@@ -154,8 +168,8 @@ export default function SetupSchemasPage() {
       // Check if user needs to create business profile first
       if (!hasBusinessProfile) {
         router.push(`/dashboard/projects/${projectId}/business-profile`)
-      } else if (schemaCount >= PRICING.MAX_SCHEMAS_PER_PROJECT) {
-        alert(`Osiągnięto limit ${PRICING.MAX_SCHEMAS_PER_PROJECT} sekcji na domenę. Usuń niepotrzebne sekcje aby dodać nowe.`)
+      } else if (schemaCount >= maxSchemasPerProject) {
+        alert(`Osiągnięto limit ${maxSchemasPerProject} sekcji na domenę. Usuń niepotrzebne sekcje aby dodać nowe.`)
       } else {
         router.push(`/dashboard/projects/${projectId}/schemas/wizard?industry=${selectedIndustry}`)
       }
@@ -177,7 +191,7 @@ export default function SetupSchemasPage() {
           <div className="text-right">
             <div className="text-sm text-gray-500">Sekcje:</div>
             <div className="text-2xl font-bold text-emerald-600">
-              {schemaCount}/{PRICING.MAX_SCHEMAS_PER_PROJECT}
+              {schemaCount}/{maxSchemasPerProject}
             </div>
           </div>
         </div>
@@ -196,14 +210,14 @@ export default function SetupSchemasPage() {
           </div>
         )}
         
-        {schemaCount >= PRICING.MAX_SCHEMAS_PER_PROJECT && (
+        {schemaCount >= maxSchemasPerProject && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
             <div className="flex items-start gap-3">
               <div className="text-red-600 text-xl">⚠️</div>
               <div>
                 <h3 className="font-semibold text-red-900 mb-1">Osiągnięto limit sekcji</h3>
                 <p className="text-sm text-red-800">
-                  Masz już {PRICING.MAX_SCHEMAS_PER_PROJECT} sekcji. Usuń niepotrzebne aby dodać nowe.
+                  Masz już {maxSchemasPerProject} sekcji. Usuń niepotrzebne aby dodać nowe.
                 </p>
               </div>
             </div>

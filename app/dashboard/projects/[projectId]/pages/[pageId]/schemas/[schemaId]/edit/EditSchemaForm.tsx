@@ -118,11 +118,13 @@ type FormData = LocalBusinessFormData | AggregateRatingFormData | ReviewFormData
 export function EditSchemaForm({ 
   schema, 
   projectId,
+  pageId,
   remainingEdits,
   maxEditsPerMonth
 }: { 
   schema: SchemaData
   projectId: string
+  pageId: string
   remainingEdits: number
   maxEditsPerMonth: number
 }) {
@@ -265,6 +267,7 @@ export function EditSchemaForm({
     setError(null)
 
     try {
+      const now = new Date()
       // Generate updated JSON-LD
       let updatedJsonData: any
 
@@ -471,12 +474,15 @@ export function EditSchemaForm({
       await supabase
         .from('schema_edits')
         .insert({
-          project_id: projectId,
+          user_id: (await supabase.auth.getUser()).data.user?.id,
           schema_id: schema.id,
+          page_id: pageId,
+          action: 'update',
+          month: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`,
         })
 
-      // Redirect back to schemas page
-      router.push(`/dashboard/projects/${projectId}/schemas`)
+      // Redirect back to page schemas
+      router.push(`/dashboard/projects/${projectId}/pages/${pageId}`)
       router.refresh()
     } catch (err) {
       setError('Wystąpił błąd podczas zapisywania')
@@ -488,13 +494,13 @@ export function EditSchemaForm({
     <div>
       <div className="mb-8">
         <Link
-          href={`/dashboard/projects/${projectId}/schemas`}
+          href={`/dashboard/projects/${projectId}/pages/${pageId}`}
           className="text-sm text-gray-600 hover:text-gray-900 mb-2 inline-block"
         >
           ← Powrót do zarządzania
         </Link>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Edytuj schemat: {schema.type}
+            Edytuj: {schema.type}
           </h1>
           <p className="text-gray-600">
             Pozostało edycji w tym miesiącu: <strong>{remainingEdits}/5</strong>

@@ -68,8 +68,32 @@ export default function BusinessProfileForm({ projectId, existingProfile }: Busi
         if (insertError) throw insertError
       }
 
-      // Redirect to setup schemas
-      router.push(`/dashboard/projects/${projectId}/schemas/setup`)
+      // Create default home page if it doesn't exist
+      const { data: existingPage } = await supabase
+        .from('pages')
+        .select('id')
+        .eq('project_id', projectId)
+        .eq('url_path', '/')
+        .single()
+
+      let homePageId = existingPage?.id
+
+      if (!homePageId) {
+        const { data: newPage } = await supabase
+          .from('pages')
+          .insert({
+            project_id: projectId,
+            name: 'Strona główna',
+            url_path: '/'
+          })
+          .select()
+          .single()
+        
+        homePageId = newPage?.id
+      }
+
+      // Redirect to home page to add information
+      router.push(`/dashboard/projects/${projectId}/pages/${homePageId}`)
     } catch (err: any) {
       setError(err.message || 'Wystąpił błąd podczas zapisywania profilu firmy')
     } finally {

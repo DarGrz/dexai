@@ -5,6 +5,7 @@ import { checkRateLimit, getClientIP, RATE_LIMITS } from '@/lib/rate-limit'
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const projectId = searchParams.get('projectId')
+  const currentUrl = searchParams.get('url') || '/'
 
   if (!projectId) {
     return new NextResponse('<!-- Brak parametru projectId -->', {
@@ -56,15 +57,42 @@ export async function GET(request: NextRequest) {
     }
   )
 
-  // Fetch enabled schemas for this project
-  const { data: schemas, error } = await supabase
+  // Fetch enabled schemas for this project through pages
+  const { data: allSchemas, error } = await supabase
     .from('schemas')
-    .select('*')
-    .eq('project_id', projectId)
+    .select(`
+      *,
+      page:pages!inner(project_id, url_path)
+    `)
+    .eq('page.project_id', projectId)
     .eq('enabled', true)
     .order('created_at', { ascending: false })
 
-  if (error || !schemas || schemas.length === 0) {
+  if (error) {
+    return new NextResponse('<!-- Błąd pobierania schematów -->', {
+      headers: { 
+        'Content-Type': 'text/html',
+        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+      },
+    })
+  }
+
+  // Filter schemas based on page URL path matching
+  const schemas = allSchemas?.filter((schema: any) => {
+    const urlPath = schema.page?.url_path
+    
+    // Exact match
+    if (urlPath === currentUrl) {
+      return true
+    }
+    
+    // Wildcard match: /blog/* matches /blog/article-1, /blog/article-2, etc.
+    // This can be extended if needed
+    
+    return false
+  }) || []
+
+  if (!schemas || schemas.length === 0) {
     return new NextResponse('<!-- Brak aktywnych schematów -->', {
       headers: { 
         'Content-Type': 'text/html',
