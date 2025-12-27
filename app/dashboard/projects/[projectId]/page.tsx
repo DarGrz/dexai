@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { CopyButton } from './components/CopyButton'
 import { DeleteProjectButton } from '@/app/dashboard/components/DeleteProjectButton'
+import { IndexNowWidget } from './components/IndexNowWidget'
 import { headers } from 'next/headers'
 import { Plus, ExternalLink, Settings } from 'lucide-react'
 
@@ -371,6 +372,15 @@ echo $schema_html;
               Po wklejeniu kodu na stronie, dane będą automatycznie aktualizowane bez potrzeby zmiany kodu.
             </p>
           </div>
+
+          {/* IndexNow Widget */}
+          <IndexNowWidget
+            projectId={project.project_id}
+            indexnowKey={project.indexnow_key}
+            indexnowEnabled={project.indexnow_enabled || false}
+            indexnowVerifiedAt={project.indexnow_verified_at}
+            domain={project.domain}
+          />
 
           {/* Danger Zone */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
