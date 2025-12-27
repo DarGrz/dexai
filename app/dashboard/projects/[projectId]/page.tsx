@@ -60,10 +60,7 @@ export default async function ProjectPage({
   const canAddPage = pageCount < maxPagesPerProject
 
   // Get base URL for snippet
-  const headersList = await headers()
-  const host = headersList.get('host') || 'dexai.pl'
-  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || `${protocol}://${host}`
+  const baseUrl = 'https://dexai.pl'
   
   // JavaScript snippet (for dynamic loading) - uses schema-html endpoint
   const jsSnippet = `<script src="${baseUrl}/embed.js" data-project="${projectId}" data-api="${baseUrl}/api/schema-html" defer></script>`

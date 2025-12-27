@@ -1,0 +1,33 @@
+config:
+  target: 'https://dexai.pl'
+  phases:
+    - duration: 30
+      arrivalRate: 5
+      name: "Warm up - 5 users/sec"
+    - duration: 60
+      arrivalRate: 20
+      name: "Normal load - 20 users/sec"
+    - duration: 30
+      arrivalRate: 50
+      name: "Peak load - 50 users/sec"
+    - duration: 30
+      arrivalRate: 100
+      name: "Stress test - 100 users/sec"
+  processor: "./load-test-processor.js"
+
+scenarios:
+  - name: "Test embed API - różne projekty i strony"
+    weight: 70
+    flow:
+      - get:
+          url: "/api/schema-html?projectId={{ projectId }}&currentUrl={{ pageUrl }}"
+          beforeRequest: "setRandomParams"
+          afterResponse: "checkResponse"
+
+  - name: "Test embed API - ten sam projekt, różne strony"
+    weight: 30
+    flow:
+      - get:
+          url: "/api/schema-html?projectId=test-project-123&currentUrl={{ pageUrl }}"
+          beforeRequest: "setRandomPage"
+          afterResponse: "checkResponse"

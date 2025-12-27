@@ -25,8 +25,32 @@
   // Get current page URL path (without domain)
   var currentUrl = window.location.pathname;
   
+  // Cache configuration
+  var CACHE_TTL = 15 * 60 * 1000; // 15 minutes
+  var cacheKey = 'dexai_schemas_' + projectId + '_' + currentUrl;
+  var cacheTimeKey = cacheKey + '_time';
+  
+  // Try to get from localStorage cache
+  var cachedHtml = null;
+  var cachedTime = null;
+  
+  try {
+    cachedHtml = localStorage.getItem(cacheKey);
+    cachedTime = localStorage.getItem(cacheTimeKey);
+  } catch (e) {
+    // localStorage not available (private mode, etc.)
+    console.log('[DexAi] localStorage niedostępny, pomijam cache');
+  }
+  
+  // Check if cache is valid
+  if (cachedHtml && cachedTime && (Date.now() - parseInt(cachedTime)) < CACHE_TTL) {
+    console.log('[DexAi] Ładowanie z cache');
+    processSchemas(cachedHtml);
+    return;
+  }
+  
   // Fetch HTML with schemas and meta tags
-  fetch(apiUrl + '?projectId=' + projectId + '&url=' + encodeURIComponent(currentUrl) + '&_=' + Date.now())
+  fetch(apiUrl + '?projectId=' + projectId + '&url=' + encodeURIComponent(currentUrl))
     .then(function(response) {
       if (!response.ok) {
         throw new Error('HTTP error! status: ' + response.status);
@@ -34,6 +58,23 @@
       return response.text();
     })
     .then(function(html) {
+      // Save to cache
+      try {
+        localStorage.setItem(cacheKey, html);
+        localStorage.setItem(cacheTimeKey, String(Date.now()));
+      } catch (e) {
+        // localStorage full or not available
+        console.log('[DexAi] Nie można zapisać w cache:', e.message);
+      }
+      
+      processSchemas(html);
+    })
+    .catch(function(error) {
+      console.error('[DexAi] Błąd ładowania schematów:', error);
+    });
+  
+  // Process and inject schemas
+  function processSchemas(html) {
       if (!html || html.includes('<!-- Brak aktywnych')) {
         console.warn('[DexAi] Brak aktywnych schematów dla projektu ' + projectId);
         return;
@@ -125,8 +166,5 @@
       });
       
       console.log('[DexAi] Załadowano ' + addedCount + ' elementów, pominięto ' + skippedCount + ' duplikatów');
-    })
-    .catch(function(error) {
-      console.error('[DexAi] Błąd ładowania schematów:', error);
-    });
+    }
 })();
