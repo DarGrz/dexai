@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { CopyButton } from './components/CopyButton'
 import { DeleteProjectButton } from '@/app/dashboard/components/DeleteProjectButton'
 import { headers } from 'next/headers'
+import { PRICING } from '@/lib/constants'
+import { Plus, ExternalLink, Settings } from 'lucide-react'
 
 export default async function ProjectPage({
   params,
@@ -30,12 +32,22 @@ export default async function ProjectPage({
     notFound()
   }
 
-  // Fetch schemas for this project
+  // Fetch schemas for this project (now representing pages/subpages)
   const { data: schemas } = await supabase
     .from('schemas')
     .select('*')
     .eq('project_id', projectId)
-    .order('created_at', { ascending: false })
+    .order('url_pattern', { ascending: true })
+
+  // Check if business profile exists
+  const { data: businessProfile } = await supabase
+    .from('business_profiles')
+    .select('id, business_name')
+    .eq('project_id', projectId)
+    .single()
+
+  const pageCount = schemas?.length || 0
+  const canAddPage = pageCount < PRICING.MAX_SCHEMAS_PER_PROJECT
 
   // Get base URL for snippet
   const headersList = await headers()
@@ -139,52 +151,120 @@ echo $schema_html;
             </details>
           </div>
 
-          {/* Schemas List */}
+          {/* Pages/Subpages List */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Informacje o firmie
-              </h2>
-              <Link
-                href={`/dashboard/projects/${projectId}/schemas`}
-                className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
-              >
-                Zarządzaj →
-              </Link>
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Podstrony
+                </h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  Zarządzaj schematami dla różnych URL w domenie {project.domain}
+                </p>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-gray-500 mb-1">Limit</div>
+                <div className={`text-lg font-bold ${pageCount >= PRICING.MAX_SCHEMAS_PER_PROJECT ? 'text-red-600' : 'text-emerald-600'}`}>
+                  {pageCount}/{PRICING.MAX_SCHEMAS_PER_PROJECT}
+                </div>
+              </div>
             </div>
 
+            {!businessProfile && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <div className="flex items-start gap-3">
+                  <div className="text-blue-600 text-xl">💡</div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-blue-900 mb-1">Najpierw uzupełnij profil firmy</h3>
+                    <p className="text-sm text-blue-800 mb-3">
+                      Wprowadź podstawowe dane firmy raz - będą automatycznie wykorzystywane dla wszystkich podstron.
+                    </p>
+                    <Link
+                      href={`/dashboard/projects/${projectId}/business-profile`}
+                      className="inline-block px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 font-medium"
+                    >
+                      Utwórz profil firmy
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {!schemas || schemas.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-gray-500 mb-4">
-                  Nie masz jeszcze żadnych danych strukturalnych
+              <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-lg">
+                <div className="text-gray-400 text-5xl mb-4">📄</div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Brak podstron
+                </h3>
+                <p className="text-sm text-gray-500 mb-6">
+                  Dodaj pierwszą podstronę z dedykowanym schematem
                 </p>
-                <Link
-                  href={`/dashboard/projects/${projectId}/schemas/setup`}
-                  className="inline-block px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-md hover:from-emerald-700 hover:to-teal-700 text-sm font-medium shadow-md hover:shadow-lg transition-all"
-                >
-                  Rozpocznij konfigurację
-                </Link>
+                {businessProfile && canAddPage && (
+                  <Link
+                    href={`/dashboard/projects/${projectId}/pages/new`}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-md hover:from-emerald-700 hover:to-teal-700 text-sm font-medium shadow-md hover:shadow-lg transition-all"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Dodaj pierwszą podstronę
+                  </Link>
+                )}
               </div>
             ) : (
-              <div className="space-y-3">
-                {schemas.map((schema) => (
-                  <div
-                    key={schema.id}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-md"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-3 h-3 rounded-full ${schema.enabled ? 'bg-green-500' : 'bg-gray-300'}`} />
-                      <span className="font-medium text-gray-900">{schema.type}</span>
-                      {schema.url_pattern && schema.url_pattern !== '*' && (
-                        <span className="text-xs text-gray-500">({schema.url_pattern})</span>
-                      )}
+              <>
+                <div className="space-y-2 mb-4">
+                  {schemas.map((schema) => (
+                    <div
+                      key={schema.id}
+                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group"
+                    >
+                      <div className="flex items-center gap-4 flex-1">
+                        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${schema.enabled ? 'bg-green-500' : 'bg-gray-300'}`} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-mono text-sm text-gray-900">
+                              {project.domain}{schema.url_pattern || '/'}
+                            </span>
+                            <ExternalLink className="w-3 h-3 text-gray-400" />
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="inline-block px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-medium rounded">
+                              {schema.type}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              {schema.enabled ? 'Aktywny' : 'Wyłączony'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <Link
+                        href={`/dashboard/projects/${projectId}/pages/${schema.id}/edit`}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 px-3 py-1.5 text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+                      >
+                        <Settings className="w-4 h-4" />
+                        Edytuj
+                      </Link>
                     </div>
-                    <span className="text-xs text-gray-400">
-                      {schema.enabled ? 'Aktywne' : 'Wyłączone'}
-                    </span>
+                  ))}
+                </div>
+
+                {businessProfile && canAddPage && (
+                  <Link
+                    href={`/dashboard/projects/${projectId}/pages/new`}
+                    className="flex items-center justify-center gap-2 w-full px-4 py-3 border-2 border-dashed border-gray-300 text-gray-600 rounded-lg hover:border-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all font-medium"
+                  >
+                    <Plus className="w-5 h-5" />
+                    Dodaj kolejną podstronę
+                  </Link>
+                )}
+
+                {!canAddPage && (
+                  <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-sm text-red-800">
+                      ⚠️ Osiągnięto limit {PRICING.MAX_SCHEMAS_PER_PROJECT} podstron. Usuń niepotrzebne aby dodać nowe.
+                    </p>
                   </div>
-                ))}
-              </div>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -195,17 +275,36 @@ echo $schema_html;
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h3 className="text-sm font-semibold text-gray-900 mb-4">Szybkie akcje</h3>
             <div className="space-y-2">
-              <Link
-                href={`/dashboard/projects/${projectId}/schemas/setup`}
-                className="block w-full px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-md hover:from-emerald-700 hover:to-teal-700 text-sm text-center font-medium shadow-md hover:shadow-lg transition-all"
-              >
-                Konfiguruj schema
-              </Link>
-              <button
-                className="block w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm font-medium"
-              >
-                Testuj w Google
-              </button>
+              {businessProfile ? (
+                <>
+                  {canAddPage ? (
+                    <Link
+                      href={`/dashboard/projects/${projectId}/pages/new`}
+                      className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-md hover:from-emerald-700 hover:to-teal-700 text-sm font-medium shadow-md hover:shadow-lg transition-all"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Dodaj podstronę
+                    </Link>
+                  ) : (
+                    <div className="px-4 py-2 bg-gray-100 text-gray-500 rounded-md text-sm text-center">
+                      Limit podstron osiągnięty
+                    </div>
+                  )}
+                  <Link
+                    href={`/dashboard/projects/${projectId}/business-profile`}
+                    className="block w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm font-medium text-center"
+                  >
+                    Edytuj profil firmy
+                  </Link>
+                </>
+              ) : (
+                <Link
+                  href={`/dashboard/projects/${projectId}/business-profile`}
+                  className="block w-full px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-md hover:from-emerald-700 hover:to-teal-700 text-sm text-center font-medium shadow-md hover:shadow-lg transition-all"
+                >
+                  Utwórz profil firmy
+                </Link>
+              )}
             </div>
           </div>
 
@@ -214,15 +313,15 @@ echo $schema_html;
             <h3 className="text-sm font-semibold text-gray-900 mb-4">Statystyki</h3>
             <div className="space-y-3">
               <div>
-                <p className="text-xs text-gray-500">Aktywne sekcje</p>
+                <p className="text-xs text-gray-500">Aktywne podstrony</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {schemas?.filter(s => s.enabled).length || 0}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Łącznie sekcji</p>
+                <p className="text-xs text-gray-500">Łącznie podstron</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {schemas?.length || 0}
+                  {pageCount}/{PRICING.MAX_SCHEMAS_PER_PROJECT}
                 </p>
               </div>
               <div>
