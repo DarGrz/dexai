@@ -23,7 +23,6 @@ export function DashboardLayout({
   const pathname = usePathname()
 
   const navItems = [
-    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/dashboard', label: 'Projekty', icon: FolderKanban },
     { href: '/dashboard/settings', label: 'Ustawienia', icon: Settings },
   ]

@@ -82,25 +82,25 @@ export default async function DashboardPage() {
                     <svg className="w-5 h-5 text-green-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
                     </svg>
-                    <span className="text-gray-700">4 typy schematów (LocalBusiness, Reviews, Products, FAQ)</span>
+                    <span className="text-gray-700">5 typów schematów (Firma, Opinie, Produkty, FAQ, HowTo)</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <svg className="w-5 h-5 text-green-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
                     </svg>
-                    <span className="text-gray-700">5 edycji/miesiąc</span>
+                    <span className="text-gray-700">Optymalizacja pod AI Overviews (Google AI)</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <svg className="w-5 h-5 text-green-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
                     </svg>
-                    <span className="text-gray-700">Automatyczna optymalizacja AI</span>
+                    <span className="text-gray-700">IndexNow - błyskawiczne indeksowanie w Bing/ChatGPT</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <svg className="w-5 h-5 text-green-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
                     </svg>
-                    <span className="text-gray-700">Generator snippetów</span>
+                    <span className="text-gray-700">Generator kodu do wklejenia na stronę</span>
                   </li>
                 </ul>
                 

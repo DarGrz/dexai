@@ -77,12 +77,24 @@ export async function GET(request: NextRequest) {
     })
   }
 
+  // Normalize URL function - remove .html/.htm/.php and trailing slash
+  const normalizeUrl = (url: string) => {
+    return url
+      .replace(/\.(html|htm|php)$/i, '') // Remove .html, .htm or .php extension
+      .replace(/\/$/, '') || '/' // Remove trailing slash, but keep '/' for root
+  }
+
+  const normalizedCurrentUrl = normalizeUrl(currentUrl)
+
   // Filter schemas based on page URL path matching
   const schemas = allSchemas?.filter((schema: any) => {
     const urlPath = schema.page?.url_path
     
-    // Exact match
-    if (urlPath === currentUrl) {
+    // Normalize both URLs for comparison
+    const normalizedUrlPath = normalizeUrl(urlPath)
+    
+    // Exact match (normalized)
+    if (normalizedUrlPath === normalizedCurrentUrl) {
       return true
     }
     
