@@ -49,6 +49,8 @@ type ReviewFormData = {
   datePublished: string
 }
 
+type OrganizationFormData = LocalBusinessFormData
+
 type ArticleFormData = {
   headline: string
   description: string
@@ -224,6 +226,42 @@ export function EditSchemaForm({
         description: jsonData.description || '',
         url: jsonData.url || '',
       }
+    } else if (schema.type === 'Organization') {
+      // Parse same as LocalBusiness
+      const openingHours = jsonData.openingHoursSpecification?.map((spec: any) => {
+        const dayValue = spec.dayOfWeek || ''
+        const normalizedDay = dayValue.replace('http://schema.org/', '')
+        return {
+          day: normalizedDay,
+          opens: spec.opens || '09:00',
+          closes: spec.closes || '17:00',
+          closed: false,
+        }
+      }) || []
+
+      return {
+        name: jsonData.name || '',
+        description: jsonData.description || '',
+        street: jsonData.address?.streetAddress || '',
+        city: jsonData.address?.addressLocality || '',
+        postalCode: jsonData.address?.postalCode || '',
+        phone: jsonData.telephone || '',
+        email: jsonData.email || '',
+        priceRange: jsonData.priceRange || '$$',
+        areaServed: Array.isArray(jsonData.areaServed) ? jsonData.areaServed.join(', ') : (jsonData.areaServed || ''),
+        includeRating: jsonData.aggregateRating !== undefined ? !!jsonData.aggregateRating : true,
+        ratingValue: jsonData.aggregateRating?.ratingValue?.toString() || '4.5',
+        reviewCount: jsonData.aggregateRating?.reviewCount?.toString() || '10',
+        openingHours: openingHours.length > 0 ? openingHours : [
+          { day: 'Monday', opens: '09:00', closes: '17:00', closed: false },
+          { day: 'Tuesday', opens: '09:00', closes: '17:00', closed: false },
+          { day: 'Wednesday', opens: '09:00', closes: '17:00', closed: false },
+          { day: 'Thursday', opens: '09:00', closes: '17:00', closed: false },
+          { day: 'Friday', opens: '09:00', closes: '17:00', closed: false },
+          { day: 'Saturday', opens: '09:00', closes: '14:00', closed: false },
+          { day: 'Sunday', opens: '00:00', closes: '00:00', closed: true },
+        ],
+      }
     } else if (schema.type === 'Service') {
       return {
         name: jsonData.name || '',
@@ -336,6 +374,43 @@ export function EditSchemaForm({
               ratingValue: data.ratingValue,
               bestRating: '5',
               reviewCount: data.reviewCount,
+            }
+          }),
+          openingHoursSpecification: openingHoursSpec,
+        }
+      } else if (schema.type === 'Organization') {
+        const data = formData as OrganizationFormData
+        const openingHoursSpec = data.openingHours
+          .filter(h => !h.closed)
+          .map(h => ({
+            '@type': 'OpeningHoursSpecification',
+            dayOfWeek: `http://schema.org/${h.day}`,
+            opens: h.opens,
+            closes: h.closes,
+          }))
+
+        updatedJsonData = {
+          '@context': 'https://schema.org',
+          '@type': 'Organization',
+          name: data.name,
+          description: data.description,
+          address: {
+            '@type': 'PostalAddress',
+            streetAddress: data.street,
+            addressLocality: data.city,
+            postalCode: data.postalCode,
+            addressCountry: 'PL',
+          },
+          telephone: data.phone,
+          email: data.email,
+          priceRange: data.priceRange,
+          areaServed: data.areaServed ? data.areaServed.split(',').map(s => s.trim()).filter(s => s) : undefined,
+          ...(data.includeRating && {
+            aggregateRating: {
+              '@type': 'AggregateRating',
+              ratingValue: parseFloat(data.ratingValue),
+              bestRating: '5',
+              reviewCount: parseInt(data.reviewCount),
             }
           }),
           openingHoursSpecification: openingHoursSpec,
@@ -560,8 +635,8 @@ export function EditSchemaForm({
         )}
 
         <form onSubmit={handleSubmit} className="space-y-8">
-          {/* LocalBusiness Form */}
-          {schema.type === 'LocalBusiness' && (
+          {/* LocalBusiness and Organization Form */}
+          {(schema.type === 'LocalBusiness' || schema.type === 'Organization') && (
             <>
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">

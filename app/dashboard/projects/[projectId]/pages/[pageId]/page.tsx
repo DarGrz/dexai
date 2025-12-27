@@ -109,12 +109,12 @@ export default async function PageSchemasManagementPage({
               {schemas.map((schema) => (
                 <div
                   key={schema.id}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors gap-3"
                 >
-                  <div className="flex items-center gap-4 flex-1">
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
                     <div className={`w-3 h-3 rounded-full flex-shrink-0 ${schema.enabled ? 'bg-green-500' : 'bg-gray-300'}`} />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <span className="font-medium text-gray-900">
                           {getSchemaLabel(schema.type)}
                         </span>
@@ -127,14 +127,14 @@ export default async function PageSchemasManagementPage({
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <ToggleSchemaButton 
                       schemaId={schema.id}
                       enabled={schema.enabled}
                     />
                     <Link
                       href={`/dashboard/projects/${projectId}/pages/${pageId}/schemas/${schema.id}/edit`}
-                      className="px-3 py-1.5 text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+                      className="px-3 py-1.5 text-sm text-emerald-600 hover:text-emerald-700 font-medium whitespace-nowrap"
                     >
                       Edytuj
                     </Link>
