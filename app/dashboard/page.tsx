@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { DeleteProjectButton } from './components/DeleteProjectButton'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -30,10 +29,9 @@ export default async function DashboardPage() {
     return (
       <div className="max-w-2xl mx-auto py-12">
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-8 text-white text-center">
+          <div className="bg-gradient-to-r from-emerald-600 to-teal-600 p-8 text-white text-center">
             <h1 className="text-3xl font-bold mb-2">🚀 Witaj w DexAI!</h1>
-            <p className="text-indigo-100 text-lg">
-              Optymalizuj widoczność swojej strony w wyszukiwarkach AI
+            <p className="text-emerald-100 text-lg">
             </p>
           </div>
           
@@ -46,7 +44,7 @@ export default async function DashboardPage() {
                 Aby rozpocząć korzystanie z DexAi, wybierz plan subskrypcji.
               </p>
               
-              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg p-6 border-2 border-indigo-200">
+              <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-lg p-6 border-2 border-emerald-200">
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h3 className="text-xl font-bold text-gray-900">Plan Standard</h3>
@@ -109,7 +107,7 @@ export default async function DashboardPage() {
                 <div className="text-center">
                   <Link
                     href="/dashboard/checkout"
-                    className="inline-block w-full bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
+                    className="inline-block w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg"
                   >
                     Aktywuj plan - 49 PLN/mies.
                   </Link>
@@ -134,7 +132,7 @@ export default async function DashboardPage() {
           {canAddProject ? (
             <Link
               href="/dashboard/projects/new"
-              className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 font-medium"
+              className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-2 rounded-md hover:from-emerald-700 hover:to-teal-700 font-medium shadow-md hover:shadow-lg transition-all"
             >
               + Dodaj domenę
             </Link>
@@ -171,7 +169,7 @@ export default async function DashboardPage() {
             <div className="mt-6">
               <Link
                 href="/dashboard/projects/new"
-                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 transition-all hover:shadow-lg"
               >
                 Dodaj pierwszą domenę
               </Link>
@@ -216,12 +214,6 @@ export default async function DashboardPage() {
                   </svg>
                 </div>
               </Link>
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <DeleteProjectButton 
-                  projectId={project.project_id}
-                  domain={project.domain}
-                />
-              </div>
             </div>
           ))}
         </div>

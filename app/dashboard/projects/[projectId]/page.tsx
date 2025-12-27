@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { CopyButton } from './components/CopyButton'
+import { DeleteProjectButton } from '@/app/dashboard/components/DeleteProjectButton'
 import { headers } from 'next/headers'
 
 export default async function ProjectPage({
@@ -128,7 +129,7 @@ echo $schema_html;
                       href={`${baseUrl}/api/schema-html?projectId=${projectId}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded hover:bg-indigo-700"
+                      className="text-xs bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-3 py-1.5 rounded hover:from-emerald-700 hover:to-teal-700 transition-all shadow-sm hover:shadow-md"
                     >
                       Otwórz URL
                     </a>
@@ -142,11 +143,11 @@ echo $schema_html;
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold text-gray-900">
-                Dane strukturalne
+                Informacje o firmie
               </h2>
               <Link
                 href={`/dashboard/projects/${projectId}/schemas`}
-                className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+                className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
               >
                 Zarządzaj →
               </Link>
@@ -159,7 +160,7 @@ echo $schema_html;
                 </p>
                 <Link
                   href={`/dashboard/projects/${projectId}/schemas/setup`}
-                  className="inline-block px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm font-medium"
+                  className="inline-block px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-md hover:from-emerald-700 hover:to-teal-700 text-sm font-medium shadow-md hover:shadow-lg transition-all"
                 >
                   Rozpocznij konfigurację
                 </Link>
@@ -196,7 +197,7 @@ echo $schema_html;
             <div className="space-y-2">
               <Link
                 href={`/dashboard/projects/${projectId}/schemas/setup`}
-                className="block w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm text-center font-medium"
+                className="block w-full px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-md hover:from-emerald-700 hover:to-teal-700 text-sm text-center font-medium shadow-md hover:shadow-lg transition-all"
               >
                 Konfiguruj schema
               </Link>
@@ -213,13 +214,13 @@ echo $schema_html;
             <h3 className="text-sm font-semibold text-gray-900 mb-4">Statystyki</h3>
             <div className="space-y-3">
               <div>
-                <p className="text-xs text-gray-500">Aktywne schematy</p>
+                <p className="text-xs text-gray-500">Aktywne sekcje</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {schemas?.filter(s => s.enabled).length || 0}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Łącznie schematów</p>
+                <p className="text-xs text-gray-500">Łącznie sekcji</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {schemas?.length || 0}
                 </p>
@@ -239,6 +240,15 @@ echo $schema_html;
             <p className="text-xs text-blue-800">
               Po wklejeniu kodu na stronie, dane będą automatycznie aktualizowane bez potrzeby zmiany kodu.
             </p>
+          </div>
+
+          {/* Danger Zone */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 className="text-sm font-semibold text-gray-900 mb-4">Strefa niebezpieczna</h3>
+            <DeleteProjectButton 
+              projectId={project.project_id}
+              domain={project.domain}
+            />
           </div>
         </div>
       </div>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { LayoutDashboard, FolderKanban, Settings, LogOut, Menu, X } from 'lucide-react'
 
@@ -50,8 +51,15 @@ export function DashboardLayout({
       >
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-6 border-b border-gray-800">
-          <Link href="/" className="text-xl font-bold text-white hover:text-gray-200 transition-colors">
-            DexAi
+          <Link href="/" className="flex items-center gap-2 text-xl font-bold text-white hover:text-gray-200 transition-colors">
+            <Image 
+              src="/dexai-logo-sq.png" 
+              alt="DexAI Logo" 
+              width={32} 
+              height={32}
+              className="w-8 h-8"
+            />
+            <span>DexAI</span>
           </Link>
           <button
             onClick={closeMobileMenu}

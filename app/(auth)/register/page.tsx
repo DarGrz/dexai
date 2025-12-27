@@ -86,7 +86,7 @@ export default function RegisterPage() {
         </div>
         <Link
           href="/login"
-          className="block text-center text-indigo-600 hover:text-indigo-700 font-medium"
+          className="block text-center text-emerald-600 hover:text-emerald-700 font-medium"
         >
           Przejdź do logowania
         </Link>
@@ -115,7 +115,7 @@ export default function RegisterPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             placeholder="twoj@email.pl"
           />
         </div>
@@ -130,7 +130,7 @@ export default function RegisterPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             placeholder="Minimum 6 znaków"
           />
         </div>
@@ -145,7 +145,7 @@ export default function RegisterPage() {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
             placeholder="Powtórz hasło"
           />
         </div>
@@ -153,7 +153,7 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+          className="w-full bg-emerald-600 text-white py-2 px-4 rounded-md hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
         >
           {loading ? 'Tworzenie konta...' : 'Zarejestruj się'}
         </button>
@@ -161,18 +161,18 @@ export default function RegisterPage() {
 
       <div className="mt-6 text-center text-sm text-gray-600">
         Masz już konto?{' '}
-        <Link href="/login" className="text-indigo-600 hover:text-indigo-700 font-medium">
+        <Link href="/login" className="text-emerald-600 hover:text-emerald-700 font-medium">
           Zaloguj się
         </Link>
       </div>
 
       <div className="mt-6 pt-6 border-t border-gray-200 text-xs text-gray-500 text-center">
         Rejestrując się akceptujesz{' '}
-        <a href="#" className="text-indigo-600 hover:underline">
+        <a href="#" className="text-emerald-600 hover:underline">
           regulamin
         </a>{' '}
         i{' '}
-        <a href="#" className="text-indigo-600 hover:underline">
+        <a href="#" className="text-emerald-600 hover:underline">
           politykę prywatności
         </a>
       </div>

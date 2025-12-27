@@ -36,19 +36,92 @@
         return;
       }
       
+      // Get existing schema types on the page
+      var existingSchemas = [];
+      var existingScripts = document.querySelectorAll('script[type="application/ld+json"]');
+      Array.prototype.forEach.call(existingScripts, function(script) {
+        try {
+          var data = JSON.parse(script.textContent);
+          var type = data['@type'];
+          if (type) {
+            // Handle both single type and array of types
+            if (Array.isArray(type)) {
+              existingSchemas = existingSchemas.concat(type);
+            } else {
+              existingSchemas.push(type);
+            }
+          }
+        } catch (e) {
+          // Invalid JSON, skip
+        }
+      });
+      
+      // Get existing meta tags
+      var existingMetas = {};
+      var existingMetaTags = document.querySelectorAll('meta[property^="og:"], meta[name="description"]');
+      Array.prototype.forEach.call(existingMetaTags, function(meta) {
+        var key = meta.getAttribute('property') || meta.getAttribute('name');
+        if (key) {
+          existingMetas[key] = true;
+        }
+      });
+      
       // Create a temporary container to parse HTML
       var temp = document.createElement('div');
       temp.innerHTML = html;
       
-      // Inject all elements (script tags and meta tags) into <head>
-      var count = 0;
+      // Inject elements while checking for duplicates
+      var addedCount = 0;
+      var skippedCount = 0;
+      
       Array.prototype.forEach.call(temp.children, function(element) {
-        var clone = element.cloneNode(true);
-        document.head.appendChild(clone);
-        count++;
+        var shouldAdd = true;
+        var reason = '';
+        
+        // Check if it's a schema script
+        if (element.tagName === 'SCRIPT' && element.type === 'application/ld+json') {
+          try {
+            var data = JSON.parse(element.textContent);
+            var type = data['@type'];
+            
+            if (type) {
+              var types = Array.isArray(type) ? type : [type];
+              var duplicateTypes = types.filter(function(t) {
+                return existingSchemas.indexOf(t) !== -1;
+              });
+              
+              if (duplicateTypes.length > 0) {
+                shouldAdd = false;
+                reason = 'Schema ' + duplicateTypes.join(', ') + ' już istnieje na stronie';
+              }
+            }
+          } catch (e) {
+            // Invalid JSON, add anyway
+          }
+        }
+        
+        // Check if it's a meta tag
+        if (element.tagName === 'META') {
+          var key = element.getAttribute('property') || element.getAttribute('name');
+          if (key && existingMetas[key]) {
+            shouldAdd = false;
+            reason = 'Meta tag ' + key + ' już istnieje na stronie';
+          }
+        }
+        
+        if (shouldAdd) {
+          var clone = element.cloneNode(true);
+          document.head.appendChild(clone);
+          addedCount++;
+        } else {
+          skippedCount++;
+          if (reason) {
+            console.log('[DexAi] Pominięto duplikat: ' + reason);
+          }
+        }
       });
       
-      console.log('[DexAi] Załadowano ' + count + ' elementów (schematy + meta tagi)');
+      console.log('[DexAi] Załadowano ' + addedCount + ' elementów, pominięto ' + skippedCount + ' duplikatów');
     })
     .catch(function(error) {
       console.error('[DexAi] Błąd ładowania schematów:', error);

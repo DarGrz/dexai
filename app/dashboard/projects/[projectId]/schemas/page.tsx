@@ -63,7 +63,7 @@ export default async function SchemasManagementPage({
         <div className="flex justify-between items-start">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Zarządzanie schematami
+              Zarządzaj informacjami
             </h1>
             <p className="text-gray-600">{project.domain}</p>
           </div>
@@ -84,17 +84,17 @@ export default async function SchemasManagementPage({
               <Plus className="w-8 h-8 text-indigo-600" />
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Brak schematów
+              Nie uzupełniłeś jeszcze żadnych danych
             </h3>
             <p className="text-sm text-gray-500 mb-6">
-              Zacznij od utworzenia pierwszego schematu danych strukturalnych
+              Zacznij od utworzenia profilu swojej firmy
             </p>
             <Link
               href={`/dashboard/projects/${projectId}/schemas/setup`}
               className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700"
             >
               <Plus className="w-5 h-5 mr-2" />
-              Dodaj pierwszy schemat
+              Uzupełnij dane
             </Link>
           </div>
         </div>

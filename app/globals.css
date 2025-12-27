@@ -48,6 +48,19 @@ body {
   }
 }
 
+@keyframes text-shine {
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -100% center;
+  }
+}
+
 .animate-shine {
   animation: shine 10s ease-in-out infinite;
+}
+
+.animate-text-shine {
+  animation: text-shine 10s ease-in-out infinite;
 }

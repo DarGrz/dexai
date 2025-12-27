@@ -55,7 +55,7 @@ export function DeleteSchemaButton({
             Usuń schemat?
           </h3>
           <p className="text-sm text-gray-600 mb-6">
-            Czy na pewno chcesz usunąć schemat <strong>{schemaType}</strong>? Ta operacja jest nieodwracalna.
+            Czy na pewno chcesz usunąć tę sekcję: <strong>{schemaType}</strong>? Ta operacja jest nieodwracalna.
           </p>
           <div className="flex gap-3">
             <button

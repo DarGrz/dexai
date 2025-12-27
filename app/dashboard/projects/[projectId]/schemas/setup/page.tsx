@@ -3,56 +3,116 @@
 import { useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { INDUSTRIES, type Industry } from '@/lib/constants'
-import { Wrench, Heart, Hotel, Car, Landmark, ShoppingCart, UtensilsCrossed, FileText } from 'lucide-react'
+import { 
+  Wrench, Heart, Hotel, Car, Landmark, ShoppingCart, UtensilsCrossed, FileText,
+  Home, GraduationCap, Scale, Dumbbell, Scissors, Palette, Monitor
+} from 'lucide-react'
 
 const INDUSTRY_CONFIG = {
   [INDUSTRIES.LOCAL_SERVICES]: {
     name: 'Lokalne usługi',
-    description: 'Hydraulicy, elektrycy, fryzjerzy, pomoc drogowa',
+    description: 'Hydraulicy, elektrycy, instalatorzy, sprzątanie',
     icon: Wrench,
-    recommendedSchemas: ['LocalBusiness', 'OpeningHours', 'AggregateRating', 'Service'],
+    recommendedSchemas: ['LocalBusiness', 'Service', 'AggregateRating', 'Review', 'FAQPage', 'ContactPoint'],
+    benefits: 'Idealne dla lokalnych przedsiębiorców obsługujących klientów w swojej okolicy',
   },
   [INDUSTRIES.MEDICAL]: {
     name: 'Medycyna i zdrowie',
-    description: 'Kliniki, gabinety lekarskie, dentyści',
+    description: 'Kliniki, gabinety, dentyści, lekarze',
     icon: Heart,
-    recommendedSchemas: ['MedicalOrganization', 'Physician', 'OpeningHours', 'Review'],
+    recommendedSchemas: ['MedicalOrganization', 'Physician', 'Dentist', 'OpeningHoursSpecification', 'Review', 'AggregateRating', 'Service'],
+    benefits: 'Optymalne dla praktyk medycznych i specjalistów zdrowia',
   },
   [INDUSTRIES.HOTEL]: {
     name: 'Hotele i noclegi',
-    description: 'Hotele, apartamenty, pensjonaty',
+    description: 'Hotele, pensjonaty, apartamenty, B&B',
     icon: Hotel,
-    recommendedSchemas: ['Hotel', 'LodgingBusiness', 'AggregateRating', 'Offer'],
+    recommendedSchemas: ['Hotel', 'LodgingBusiness', 'AggregateRating', 'Review', 'Offer', 'FAQPage'],
+    benefits: 'Najlepsze dla branży hotelarskiej i obiektów noclegowych',
   },
   [INDUSTRIES.AUTOMOTIVE]: {
     name: 'Motoryzacja',
-    description: 'Warsztaty, komisy, wypożyczalnie',
+    description: 'Warsztaty, komisy, wypożyczalnie, detailing',
     icon: Car,
-    recommendedSchemas: ['AutoRepair', 'AutoDealer', 'Product', 'Service'],
+    recommendedSchemas: ['AutoRepair', 'AutoDealer', 'Service', 'Product', 'AggregateRating', 'Review'],
+    benefits: 'Stworzone dla warsztatów, komis i serwisów samochodowych',
   },
   [INDUSTRIES.FINANCE]: {
-    name: 'Finanse',
-    description: 'Banki, ubezpieczenia, doradztwo',
+    name: 'Finanse i ubezpieczenia',
+    description: 'Banki, doradcy, ubezpieczenia, księgowość',
     icon: Landmark,
-    recommendedSchemas: ['FinancialService', 'BankOrCreditUnion', 'Service'],
+    recommendedSchemas: ['FinancialService', 'BankOrCreditUnion', 'InsuranceAgency', 'Service', 'Review', 'FAQPage'],
+    benefits: 'Dedykowane dla instytucji finansowych i doradców',
   },
   [INDUSTRIES.ECOMMERCE]: {
     name: 'E-commerce',
-    description: 'Sklepy internetowe',
+    description: 'Sklepy internetowe, marketplace',
     icon: ShoppingCart,
-    recommendedSchemas: ['Product', 'Offer', 'AggregateRating', 'BreadcrumbList'],
+    recommendedSchemas: ['Product', 'Offer', 'AggregateRating', 'Review', 'BreadcrumbList', 'WebSite', 'SearchAction'],
+    benefits: 'Zaprojektowane dla sklepów online i platform e-commerce',
   },
   [INDUSTRIES.RESTAURANT]: {
     name: 'Gastronomia',
-    description: 'Restauracje, catering',
+    description: 'Restauracje, kawiarnie, catering, bary',
     icon: UtensilsCrossed,
-    recommendedSchemas: ['Restaurant', 'Menu', 'OpeningHours', 'Review'],
+    recommendedSchemas: ['Restaurant', 'Menu', 'MenuItem', 'OpeningHoursSpecification', 'Review', 'AggregateRating'],
+    benefits: 'Dostosowane dla restauracji, kawiarni i usług cateringowych',
+  },
+  [INDUSTRIES.REAL_ESTATE]: {
+    name: 'Nieruchomości',
+    description: 'Agencje, pośrednicy, deweloperzy',
+    icon: Home,
+    recommendedSchemas: ['RealEstateAgent', 'Service', 'Offer', 'Review', 'ContactPoint', 'FAQPage'],
+    benefits: 'Przygotowane dla agencji i pośredników nieruchomości',
+  },
+  [INDUSTRIES.EDUCATION]: {
+    name: 'Edukacja',
+    description: 'Szkoły, kursy, korepetycje, szkolenia',
+    icon: GraduationCap,
+    recommendedSchemas: ['EducationalOrganization', 'School', 'Course', 'Event', 'Review', 'FAQPage'],
+    benefits: 'Idealne dla placówek edukacyjnych i platform szkoleniowych',
+  },
+  [INDUSTRIES.LEGAL]: {
+    name: 'Prawo',
+    description: 'Kancelarie, adwokaci, doradcy prawni',
+    icon: Scale,
+    recommendedSchemas: ['LawFirm', 'Attorney', 'Service', 'Review', 'FAQPage', 'ContactPoint'],
+    benefits: 'Stworzone dla kancelarii prawnych i profesjonalistów',
+  },
+  [INDUSTRIES.FITNESS]: {
+    name: 'Fitness i sport',
+    description: 'Siłownie, kluby sportowe, trenerzy',
+    icon: Dumbbell,
+    recommendedSchemas: ['SportsActivityLocation', 'HealthAndBeautyBusiness', 'Service', 'Offer', 'Review', 'Event'],
+    benefits: 'Najlepsze dla klubów fitness i obiektów sportowych',
+  },
+  [INDUSTRIES.BEAUTY]: {
+    name: 'Uroda i pielęgnacja',
+    description: 'Salony fryzjerskie, kosmetyczne, spa',
+    icon: Scissors,
+    recommendedSchemas: ['BeautySalon', 'HairSalon', 'DaySpa', 'Service', 'AggregateRating', 'Review', 'OpeningHoursSpecification'],
+    benefits: 'Dedykowane dla salonów urody i centrów SPA',
+  },
+  [INDUSTRIES.ENTERTAINMENT]: {
+    name: 'Rozrywka i kultura',
+    description: 'Kina, teatry, eventy, atrakcje',
+    icon: Palette,
+    recommendedSchemas: ['Event', 'Organization', 'Review', 'Offer', 'FAQPage', 'VideoObject'],
+    benefits: 'Przygotowane dla organizatorów wydarzeń i atrakcji',
+  },
+  [INDUSTRIES.TECHNOLOGY]: {
+    name: 'IT i technologia',
+    description: 'Usługi IT, software house, support',
+    icon: Monitor,
+    recommendedSchemas: ['Organization', 'Service', 'Product', 'SoftwareApplication', 'HowTo', 'FAQPage', 'Review'],
+    benefits: 'Zaprojektowane dla firm IT i dostawców rozwiązań technologicznych',
   },
   [INDUSTRIES.OTHER]: {
-    name: 'Inne',
-    description: 'Inna branża lub uniwersalne',
+    name: 'Inna branża',
+    description: 'Nie widzisz swojej kategorii? Wybierz tę opcję',
     icon: FileText,
-    recommendedSchemas: ['Organization', 'LocalBusiness', 'FAQPage'],
+    recommendedSchemas: ['Organization', 'LocalBusiness', 'Service', 'FAQPage', 'Review', 'ContactPoint'],
+    benefits: 'Uniwersalne rozwiązanie dla każdej branży',
   },
 }
 
@@ -64,91 +124,110 @@ export default function SetupSchemasPage() {
 
   const handleContinue = () => {
     if (selectedIndustry) {
-      router.push(`/dashboard/projects/${projectId}/schemas/create?industry=${selectedIndustry}`)
+      router.push(`/dashboard/projects/${projectId}/schemas/wizard?industry=${selectedIndustry}`)
     }
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-6xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Wybierz branżę
+          Kreator profilu firmy
         </h1>
         <p className="text-gray-600">
-          Dopasujemy odpowiednie typy danych strukturalnych do Twojej działalności
+          Wybierz swoją branżę, a dopasujemy odpowiednie informacje do Twojej działalności
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {Object.entries(INDUSTRY_CONFIG).map(([key, config]) => (
           <button
             key={key}
             onClick={() => setSelectedIndustry(key as Industry)}
             className={`p-6 rounded-lg border-2 text-left transition-all ${
               selectedIndustry === key
-                ? 'border-indigo-600 bg-indigo-50'
-                : 'border-gray-200 bg-white hover:border-gray-300'
+                ? 'border-emerald-600 bg-emerald-50 shadow-lg'
+                : 'border-gray-200 bg-white hover:border-emerald-300 hover:shadow-md'
             }`}
           >
-            <div className="flex items-start space-x-4">
-              <div className="w-12 h-12 flex items-center justify-center">
-                <config.icon className="w-10 h-10 text-indigo-600" />
+            <div className="flex items-start space-x-3 mb-4">
+              <div className={`w-10 h-10 flex items-center justify-center rounded-lg ${
+                selectedIndustry === key ? 'bg-emerald-600' : 'bg-gray-100'
+              }`}>
+                <config.icon className={`w-6 h-6 ${
+                  selectedIndustry === key ? 'text-white' : 'text-emerald-600'
+                }`} />
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-gray-900 mb-1">
                   {config.name}
                 </h3>
-                <p className="text-sm text-gray-600 mb-3">
+                <p className="text-xs text-gray-600">
                   {config.description}
                 </p>
-                <div className="flex flex-wrap gap-1">
-                  {config.recommendedSchemas.map((schema: string) => (
-                    <span
-                      key={schema}
-                      className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded"
-                    >
-                      {schema}
-                    </span>
-                  ))}
-                </div>
               </div>
+            </div>
+            <div className={`text-xs leading-relaxed ${
+              selectedIndustry === key ? 'text-emerald-700' : 'text-gray-600'
+            }`}>
+              💡 {config.benefits}
             </div>
           </button>
         ))}
       </div>
 
       {selectedIndustry && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-          <h3 className="font-semibold text-blue-900 mb-2">
-            📊 Co zostanie utworzone?
-          </h3>
-          <p className="text-sm text-blue-800 mb-3">
-            Dla branży <strong>{INDUSTRY_CONFIG[selectedIndustry].name}</strong> przygotujemy:
-          </p>
-          <ul className="text-sm text-blue-800 space-y-1">
-            {INDUSTRY_CONFIG[selectedIndustry].recommendedSchemas.map((schema: string) => (
-              <li key={schema}>✓ {schema}</li>
-            ))}
-          </ul>
-          <p className="text-xs text-blue-700 mt-3">
-            Będziesz mógł je później dostosować lub dodać więcej typów
-          </p>
+        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-xl p-6 mb-6 shadow-lg">
+          <div className="flex items-start gap-4 mb-4">
+            <div className="w-12 h-12 bg-emerald-600 rounded-lg flex items-center justify-center flex-shrink-0">
+              <span className="text-2xl">✨</span>
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-emerald-900 text-lg mb-2">
+                Idealne dopasowanie dla: {INDUSTRY_CONFIG[selectedIndustry].name}
+              </h3>
+              <p className="text-sm text-emerald-800 mb-4">
+                {INDUSTRY_CONFIG[selectedIndustry].benefits}
+              </p>
+            </div>
+          </div>
+          
+          <div className="bg-white/60 rounded-lg p-4 mb-4">
+            <h4 className="font-semibold text-emerald-900 mb-3 flex items-center gap-2">
+              <span>📊</span>
+              <span>Sekcje, które skonfigurujemy ({INDUSTRY_CONFIG[selectedIndustry].recommendedSchemas.length})</span>
+            </h4>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {INDUSTRY_CONFIG[selectedIndustry].recommendedSchemas.map((schema: string) => (
+                <div key={schema} className="flex items-center gap-2 text-sm text-emerald-800">
+                  <span className="text-emerald-600">✓</span>
+                  <span>{schema}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p className="text-xs text-blue-800">
+              <strong>💡 Wskazówka:</strong> Możesz później edytować każdą sekcję, dodać więcej informacji lub wyłączyć te, których nie potrzebujesz
+            </p>
+          </div>
         </div>
       )}
 
       <div className="flex justify-between items-center pt-6 border-t border-gray-200">
         <button
           onClick={() => router.back()}
-          className="text-gray-600 hover:text-gray-900"
+          className="text-gray-600 hover:text-gray-900 font-medium"
         >
           ← Wstecz
         </button>
         <button
           onClick={handleContinue}
           disabled={!selectedIndustry}
-          className="px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-8 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-lg hover:from-emerald-700 hover:to-teal-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-lg disabled:shadow-none transition-all"
         >
-          Dalej →
+          Przejdź dalej →
         </button>
       </div>
     </div>

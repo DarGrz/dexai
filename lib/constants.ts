@@ -7,24 +7,98 @@ export const INDUSTRIES = {
   LOCAL_SERVICES: 'local_services',
   ECOMMERCE: 'ecommerce',
   RESTAURANT: 'restaurant',
+  REAL_ESTATE: 'real_estate',
+  EDUCATION: 'education',
+  LEGAL: 'legal',
+  FITNESS: 'fitness',
+  BEAUTY: 'beauty',
+  ENTERTAINMENT: 'entertainment',
+  TECHNOLOGY: 'technology',
   OTHER: 'other',
 } as const
 
 export type Industry = typeof INDUSTRIES[keyof typeof INDUSTRIES]
 
-// Schema types
+// Schema types - rozszerzona lista z schema.org
 export const SCHEMA_TYPES = {
+  // Podstawowe
   LOCAL_BUSINESS: 'LocalBusiness',
   ORGANIZATION: 'Organization',
-  OPENING_HOURS: 'OpeningHours',
+  
+  // Biznes specjalistyczny
+  AUTO_REPAIR: 'AutoRepair',
+  AUTO_DEALER: 'AutoDealer',
+  RESTAURANT: 'Restaurant',
+  HOTEL: 'Hotel',
+  LODGING_BUSINESS: 'LodgingBusiness',
+  MEDICAL_ORGANIZATION: 'MedicalOrganization',
+  PHYSICIAN: 'Physician',
+  DENTIST: 'Dentist',
+  HOSPITAL: 'Hospital',
+  PHARMACY: 'Pharmacy',
+  FINANCIAL_SERVICE: 'FinancialService',
+  BANK: 'BankOrCreditUnion',
+  INSURANCE_AGENCY: 'InsuranceAgency',
+  REAL_ESTATE_AGENT: 'RealEstateAgent',
+  LAW_FIRM: 'LawFirm',
+  ATTORNEY: 'Attorney',
+  EDUCATION_ORGANIZATION: 'EducationalOrganization',
+  SCHOOL: 'School',
+  COLLEGE: 'CollegeOrUniversity',
+  LIBRARY: 'Library',
+  SPORTS_CLUB: 'SportsActivityLocation',
+  HEALTH_CLUB: 'HealthAndBeautyBusiness',
+  BEAUTY_SALON: 'BeautySalon',
+  HAIR_SALON: 'HairSalon',
+  SPA: 'DaySpa',
+  STORE: 'Store',
+  SHOPPING_CENTER: 'ShoppingCenter',
+  
+  // Produkty i usługi
+  PRODUCT: 'Product',
+  SERVICE: 'Service',
+  OFFER: 'Offer',
+  AGGREGATE_OFFER: 'AggregateOffer',
+  
+  // Oceny i opinie
   AGGREGATE_RATING: 'AggregateRating',
   REVIEW: 'Review',
-  FAQ_PAGE: 'FAQPage',
-  SERVICE: 'Service',
-  PRODUCT: 'Product',
-  BREADCRUMB: 'BreadcrumbList',
+  RATING: 'Rating',
+  
+  // Treści
   ARTICLE: 'Article',
-  PRICE_LIST: 'PriceList',
+  BLOG_POSTING: 'BlogPosting',
+  NEWS_ARTICLE: 'NewsArticle',
+  FAQ_PAGE: 'FAQPage',
+  QUESTION: 'Question',
+  HOW_TO: 'HowTo',
+  RECIPE: 'Recipe',
+  VIDEO_OBJECT: 'VideoObject',
+  IMAGE_OBJECT: 'ImageObject',
+  
+  // Nawigacja i struktura
+  BREADCRUMB: 'BreadcrumbList',
+  WEB_PAGE: 'WebPage',
+  WEB_SITE: 'WebSite',
+  SITE_NAVIGATION_ELEMENT: 'SiteNavigationElement',
+  
+  // Dane kontaktowe i społecznościowe
+  CONTACT_POINT: 'ContactPoint',
+  POSTAL_ADDRESS: 'PostalAddress',
+  
+  // Wydarzenia
+  EVENT: 'Event',
+  BUSINESS_EVENT: 'BusinessEvent',
+  COURSE: 'Course',
+  
+  // Menu i oferta
+  MENU: 'Menu',
+  MENU_ITEM: 'MenuItem',
+  
+  // Inne
+  JOB_POSTING: 'JobPosting',
+  SEARCH_ACTION: 'SearchAction',
+  OPENING_HOURS: 'OpeningHoursSpecification',
 } as const
 
 export type SchemaType = typeof SCHEMA_TYPES[keyof typeof SCHEMA_TYPES]

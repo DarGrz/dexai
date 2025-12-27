@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { FileText, Zap, Rocket, Target, Settings, DollarSign, Shield, Star, Check, User, LogOut } from 'lucide-react'
 import AnimatedHeadline from './components/AnimatedHeadline'
@@ -13,10 +14,23 @@ export default async function Home() {
       <nav className="border-b border-gray-200 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gray-900 rounded"></div>
-              <span className="text-xl font-bold text-gray-900">DexAI</span>
-            </div>
+            <Link href="/" className="flex items-center space-x-2">
+              <Image 
+                src="/dexai-logo-sq.png" 
+                alt="DexAI Logo" 
+                width={32} 
+                height={32}
+                className="w-8 h-8"
+              />
+              <span className="relative text-xl font-bold overflow-hidden inline-block">
+                <span className="relative z-10 bg-gradient-to-r from-gray-900 via-gray-900 to-gray-900 bg-clip-text text-transparent animate-text-shine" style={{
+                  backgroundSize: '200% 100%',
+                  backgroundImage: 'linear-gradient(90deg, #111827 0%, #111827 35%, #10b981 45%, #14b8a6 50%, #10b981 55%, #111827 65%, #111827 100%)'
+                }}>
+                  DexAI
+                </span>
+              </span>
+            </Link>
             <div className="flex items-center space-x-4">
               {user ? (
                 <>
@@ -59,7 +73,7 @@ export default async function Home() {
           <div className="max-w-3xl">
             <AnimatedHeadline />
             <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-              Profesjonalne zarządzanie schema markup dla firm, które chcą być znajdowane przez ChatGPT, Gemini i Perplexity. Jeden skrypt, pełna kontrola nad danymi strukturalnymi.
+              Zadbaj o to, jak Twoja firma jest prezentowana w nowoczesnych wyszukiwarkach. Jeden skrypt, pełna kontrola nad informacjami o Twojej działalności.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
@@ -106,7 +120,7 @@ export default async function Home() {
               Jak to działa?
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl">
-              Trzy proste kroki dzielą Cię od widoczności w AI
+              Trzy proste kroki dzielą Cię od lepszej widoczności online
             </p>
           </div>
 
@@ -146,7 +160,7 @@ export default async function Home() {
                 Gotowe!
               </h3>
               <p className="text-gray-600">
-                AI już rozpoznaje Twoją firmę. Zmiany wprowadzasz w panelu - bez dotykania kodu
+                Twoja firma jest widoczna w nowoczesnych wyszukiwarkach. Zmiany wprowadzasz w panelu - bez dotykania kodu
               </p>
             </div>
           </div>
@@ -171,10 +185,10 @@ export default async function Home() {
                 <Target className="w-5 h-5 text-white" />
               </div>
               <h3 className="font-bold text-gray-900 mb-2">
-                Dedykowane dla AI
+                Nowoczesne wyszukiwarki
               </h3>
               <p className="text-sm text-gray-600">
-                Schema markup zoptymalizowane pod ChatGPT, Gemini i inne modele AI
+                Zoptymalizowane pod ChatGPT, Gemini, Perplexity i inne platformy
               </p>
             </div>
 
@@ -186,7 +200,7 @@ export default async function Home() {
                 Panel zarządzania
               </h3>
               <p className="text-sm text-gray-600">
-                Aktualizuj dane w czasie rzeczywistym bez ingerencji w kod strony
+                Aktualizuj informacje w czasie rzeczywistym bez ingerencji w kod strony
               </p>
             </div>
 
