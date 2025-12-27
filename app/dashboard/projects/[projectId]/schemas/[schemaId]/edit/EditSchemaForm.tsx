@@ -485,8 +485,8 @@ export function EditSchemaForm({
           schema_id: schema.id,
         })
 
-      // Redirect back to schemas page
-      router.push(`/dashboard/projects/${projectId}/schemas`)
+      // Redirect back to project page
+      router.push(`/dashboard/projects/${projectId}`)
       router.refresh()
     } catch (err) {
       setError('Wystąpił błąd podczas zapisywania')
@@ -498,7 +498,7 @@ export function EditSchemaForm({
     <div>
       <div className="mb-8">
         <Link
-          href={`/dashboard/projects/${projectId}/schemas`}
+          href={`/dashboard/projects/${projectId}`}
           className="text-sm text-gray-600 hover:text-gray-900 mb-2 inline-block"
         >
           ← Powrót do zarządzania
@@ -1291,7 +1291,7 @@ export function EditSchemaForm({
           {/* Submit */}
           <div className="flex justify-between items-center pt-6 border-t border-gray-200">
             <Link
-              href={`/dashboard/projects/${projectId}/schemas`}
+              href={`/dashboard/projects/${projectId}`}
               className="text-gray-600 hover:text-gray-900"
             >
               ← Anuluj

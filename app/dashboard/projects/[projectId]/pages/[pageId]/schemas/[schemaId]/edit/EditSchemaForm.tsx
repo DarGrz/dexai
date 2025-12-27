@@ -1456,7 +1456,7 @@ export function EditSchemaForm({
           {/* Submit */}
           <div className="flex justify-between items-center pt-6 border-t border-gray-200">
             <Link
-              href={`/dashboard/projects/${projectId}/schemas`}
+              href={`/dashboard/projects/${projectId}/pages/${pageId}`}
               className="text-gray-600 hover:text-gray-900"
             >
               ← Anuluj
